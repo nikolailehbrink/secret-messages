@@ -1,6 +1,5 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, json, useLoaderData } from "@remix-run/react";
-import bcrypt from "bcryptjs";
+import { Form, json, redirect, useLoaderData } from "@remix-run/react";
 import { getMessages, storeMessage } from "prisma/message";
 
 export const meta: MetaFunction = () => {
@@ -19,15 +18,12 @@ export async function action({ request }: ActionFunctionArgs) {
       status: 400,
     });
   }
-  bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
-    console.log(message);
-    console.log({ err, hash });
-    storeMessage(message.toString(), hash);
-  });
-  return null;
+  const data = await storeMessage(message.toString(), password.toString());
+  return redirect(`/${data.uuid}`);
 }
 export async function loader() {
-  return json(await getMessages());
+  const messages = await getMessages();
+  return json(messages);
 }
 
 export default function Index() {
@@ -35,18 +31,21 @@ export default function Index() {
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      {data.map(({ message, password: hash, id }) => (
-        <div key={id}>
-          {message}
-          {hash}
-        </div>
-      ))}
       <h1 className="text-4xl font-bold">Welcome to Remix</h1>
       <Form method="post">
         <input type="text" name="message" />
         <input type="text" name="password" />
         <button type="submit">Encrypt message</button>
       </Form>
+      {data
+        .map(({ message, password: hash, uuid, id }) => (
+          <div key={id} className="flex gap-2">
+            <span>{message}</span>
+            <span className="bg-green-300">{hash}</span>
+            <span className="bg-red-300">{uuid}</span>
+          </div>
+        ))
+        .reverse()}
     </div>
   );
 }
