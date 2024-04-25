@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import bcrypt from "bcryptjs";
 
 export const meta: MetaFunction = () => {
   return [
@@ -12,7 +13,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
   const message = body.get("message");
   const password = body.get("password");
-  console.log({ message, password });
+  if (!password || !message) {
+    return new Response("Missing message or password", {
+      status: 400,
+    });
+  }
+  bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
+    console.log(message);
+    console.log({ err, hash });
+  });
   return null;
 }
 
