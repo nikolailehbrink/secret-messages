@@ -1,5 +1,10 @@
+.DS_Store
 node_modules
 
 /.cache
 /build
 .env
+
+/dist
+.prisma
+/prisma/*.db
