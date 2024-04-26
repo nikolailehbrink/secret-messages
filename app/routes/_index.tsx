@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Form, Link, json, redirect, useLoaderData } from "@remix-run/react";
 import { getMessages, storeMessage } from "prisma/message";
@@ -32,7 +33,8 @@ export default function Index() {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto space-y-4 py-4">
+      <Button variant={"destructive"}>Click me</Button>
       <Form id="form" method="post">
         <input type="text" name="message" />
         <input type="text" name="password" />
