@@ -2,7 +2,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { getMessage } from "prisma/message";
 import invariant from "tiny-invariant";
-import { decryptText } from "utils/lib";
+import { decryptText } from "@/lib/crypto";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
