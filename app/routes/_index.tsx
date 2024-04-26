@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, json, redirect, useLoaderData } from "@remix-run/react";
+import { Form, Link, json, redirect, useLoaderData } from "@remix-run/react";
 import { getMessages, storeMessage } from "prisma/message";
+import { useRef } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -28,24 +29,80 @@ export async function loader() {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-      <h1 className="text-4xl font-bold">Welcome to Remix</h1>
-      <Form method="post">
+    <div className="container mx-auto">
+      <Form id="form" method="post">
         <input type="text" name="message" />
         <input type="text" name="password" />
-        <button type="submit">Encrypt message</button>
-      </Form>
-      {data
-        .map(({ message, password: hash, uuid, id }) => (
-          <div key={id} className="flex gap-2">
-            <span>{message}</span>
-            <span className="bg-green-300">{hash}</span>
-            <span className="bg-red-300">{uuid}</span>
+        <button
+          id="openDialog"
+          type="button"
+          onClick={() => dialogRef.current?.showModal()}
+        >
+          Encrypt message
+        </button>
+        <dialog
+          id="dialog"
+          ref={dialogRef}
+          className="rounded-lg border-2 border-neutral-300 backdrop:bg-black/30"
+        >
+          <div className="flex flex-col gap-2 p-4">
+            Do you really want to encrypt the message?
+            <div className="flex flex-wrap justify-between gap-4">
+              <button type="submit">Encrypt message</button>
+              <button
+                onClick={() => dialogRef.current?.close()}
+                id="closeDialog"
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        ))
-        .reverse()}
+        </dialog>
+      </Form>
+      {/* <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('form');
+            const dialog = form.querySelector('#dialog');
+            const openDialogButton = form.querySelector('#openDialog');
+            const closeDialogButton = form.querySelector('#closeDialog');
+            console.log(dialog);
+            openDialogButton.addEventListener('click', () => {
+              dialog.showModal();
+            });
+            closeDialogButton.addEventListener('click', () => {
+              console.log("close dialog")
+              dialog.close();
+            });
+          });
+        `,
+        }}
+      /> */}
+
+      <div className="mx-auto flex max-w-sm flex-col gap-2">
+        {data
+          .map(({ encryptedContent, uuid, id }) => (
+            <div
+              key={id}
+              className="flex items-center justify-between gap-2 bg-neutral-100
+                p-4"
+            >
+              <span>{encryptedContent}</span>
+              <Link
+                to={`/${uuid}`}
+                className="rounded-lg bg-neutral-300 px-4 py-2"
+              >
+                View
+              </Link>
+            </div>
+          ))
+          .reverse()}
+      </div>
     </div>
   );
 }
