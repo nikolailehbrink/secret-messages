@@ -10,10 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model EncryptedMessage {
+model Message {
   id    Int     @id @default(autoincrement())
-  message String
-  password String
+  encryptedContent String
+  iv String @unique
   createdAt DateTime @default(now())
   uuid String @unique
 }

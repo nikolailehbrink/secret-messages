@@ -1,24 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
-import bcrypt from "bcryptjs";
+import { encryptText } from "utils/lib";
 
 const prisma = new PrismaClient();
 
 export async function storeMessage(message: string, password: string) {
-  const saltRounds = 10;
-  const hashPassword = await bcrypt.hash(password, saltRounds);
+  const { iv, encryptedMessage } = encryptText(message, password);
 
-  return prisma.encryptedMessage.create({
+  return prisma.message.create({
     data: {
-      message,
-      password: hashPassword,
+      encryptedContent: encryptedMessage,
       uuid: uuidv4(),
+      iv,
     },
   });
 }
 
 export async function getMessage(uuid: string) {
-  return prisma.encryptedMessage.findUnique({
+  return prisma.message.findUnique({
     where: {
       uuid,
     },
@@ -26,5 +25,5 @@ export async function getMessage(uuid: string) {
 }
 
 export async function getMessages() {
-  return prisma.encryptedMessage.findMany();
+  return prisma.message.findMany();
 }
