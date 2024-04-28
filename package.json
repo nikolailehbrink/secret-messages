@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.0.18",
+    "@phosphor-icons/react": "^2.1.5",
     "@prisma/client": "^5.13.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
