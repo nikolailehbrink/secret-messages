@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button";
+import EncryptForm from "@/components/EncryptForm";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, Link, json, redirect, useLoaderData } from "@remix-run/react";
-import { getMessages, storeMessage } from "prisma/message";
-import { useRef } from "react";
+import { redirect } from "@remix-run/react";
+import { storeMessage } from "prisma/message";
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,87 +22,31 @@ export async function action({ request }: ActionFunctionArgs) {
   const data = await storeMessage(message.toString(), password.toString());
   return redirect(`/${data.uuid}`);
 }
-export async function loader() {
-  const messages = await getMessages();
-  return json(messages);
-}
 
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
   return (
-    <div className="container mx-auto space-y-4 py-4">
-      <Button variant={"destructive"}>Click me</Button>
-      <Form id="form" method="post">
-        <input type="text" name="message" />
-        <input type="text" name="password" />
-        <button
-          id="openDialog"
-          type="button"
-          onClick={() => dialogRef.current?.showModal()}
+    <div
+      className="container flex h-full flex-col items-center justify-center
+        space-y-8 px-4 text-center md:px-6"
+    >
+      <div className="space-y-4">
+        <h1
+          className="bg-gradient-to-br from-neutral-950 to-neutral-500
+            bg-clip-text text-3xl font-bold tracking-tighter text-transparent
+            sm:text-4xl md:text-5xl lg:text-6xl/snug"
         >
-          Encrypt message
-        </button>
-        <dialog
-          id="dialog"
-          ref={dialogRef}
-          className="rounded-lg border-2 border-neutral-300 backdrop:bg-black/30"
+          Secret Message
+        </h1>
+        <p
+          className="mx-auto max-w-[700px] text-neutral-500
+            dark:text-neutral-400 md:text-xl"
         >
-          <div className="flex flex-col gap-2 p-4">
-            Do you really want to encrypt the message?
-            <div className="flex flex-wrap justify-between gap-4">
-              <button type="submit">Encrypt message</button>
-              <button
-                onClick={() => dialogRef.current?.close()}
-                id="closeDialog"
-                type="button"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </dialog>
-      </Form>
-      {/* <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('form');
-            const dialog = form.querySelector('#dialog');
-            const openDialogButton = form.querySelector('#openDialog');
-            const closeDialogButton = form.querySelector('#closeDialog');
-            console.log(dialog);
-            openDialogButton.addEventListener('click', () => {
-              dialog.showModal();
-            });
-            closeDialogButton.addEventListener('click', () => {
-              console.log("close dialog")
-              dialog.close();
-            });
-          });
-        `,
-        }}
-      /> */}
-
-      <div className="mx-auto flex max-w-sm flex-col gap-2">
-        {data
-          .map(({ encryptedContent, uuid, id }) => (
-            <div
-              key={id}
-              className="flex items-center justify-between gap-2 bg-neutral-100
-                p-4"
-            >
-              <span>{encryptedContent}</span>
-              <Link
-                to={`/${uuid}`}
-                className="rounded-lg bg-neutral-300 px-4 py-2"
-              >
-                View
-              </Link>
-            </div>
-          ))
-          .reverse()}
+          Share confidential messages with your friends and family securely.
+          Create a unique link and password to access your message.
+        </p>
+      </div>
+      <div className="w-full max-w-sm space-y-4">
+        <EncryptForm />
       </div>
     </div>
   );
