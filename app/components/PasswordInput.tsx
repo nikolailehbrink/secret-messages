@@ -1,7 +1,8 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Eye, EyeSlash } from "@phosphor-icons/react/dist/ssr";
+import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
+import { EyeSlash } from "@phosphor-icons/react/dist/ssr/EyeSlash";
 
 export default function PasswordInput({
   placeholderText = "Enter a password to protect your message",

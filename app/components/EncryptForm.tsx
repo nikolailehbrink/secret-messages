@@ -3,11 +3,9 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import PasswordInput from "./PasswordInput";
-import {
-  CircleNotch,
-  LinkSimple,
-  LockKey,
-} from "@phosphor-icons/react/dist/ssr";
+import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
+import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 
 export default function EncryptForm() {
   const { state } = useNavigation();

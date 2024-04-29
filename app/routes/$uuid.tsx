@@ -5,7 +5,8 @@ import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "@/components/PasswordInput";
-import { LockKey, LockKeyOpen } from "@phosphor-icons/react/dist/ssr";
+import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
+import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
 import ErrorOutput from "@/components/ErrorOutput";
 
 export async function loader({ params }: LoaderFunctionArgs) {
