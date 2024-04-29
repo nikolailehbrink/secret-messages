@@ -4,6 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useMatches,
 } from "@remix-run/react";
 import { LinksFunction } from "@remix-run/node";
 // Supports weights 100-900
@@ -14,6 +15,10 @@ import styles from "@/index.css?url";
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const matches = useMatches();
+  // @ts-expect-error - `hydrate` is not a valid property on `handle`
+  const includeScripts = matches.some((match) => match.handle?.hydrate);
+
   return (
     <html lang="en" className="font-inter">
       <head>
@@ -22,8 +27,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        {children}
       <body
         className="flex min-h-[100dvh] flex-col text-balance bg-gradient-to-br
           from-rose-500/10 via-sky-500/5 to-fuchsia-500/10
@@ -32,8 +35,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <section className="flex w-full flex-1 py-16 md:py-32 lg:py-40">
           {children}
         </section>
-        <ScrollRestoration />
-        <Scripts />
+        {includeScripts ? (
+          <>
+            <ScrollRestoration />
+            <Scripts />
+          </>
+        ) : null}
+        {/* <ScrollRestoration />
+        <Scripts /> */}
       </body>
     </html>
   );

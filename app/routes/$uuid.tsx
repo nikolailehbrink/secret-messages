@@ -86,7 +86,7 @@ export default function $uuid() {
         className="hidden w-full select-all rounded-md border border-input
           bg-background px-3 py-2 text-sm text-neutral-600"
       ></div>
-      {/* <noscript className="hidden">
+      <noscript className="hidden">
         <style>
           {`
           #url {
@@ -107,7 +107,7 @@ export default function $uuid() {
           });
         `,
         }}
-      ></script> */}
+      ></script>
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">
