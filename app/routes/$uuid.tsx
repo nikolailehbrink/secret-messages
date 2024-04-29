@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@vercel/remix";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { getMessage } from "prisma/message";
 import invariant from "tiny-invariant";

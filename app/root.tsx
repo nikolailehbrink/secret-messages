@@ -6,7 +6,7 @@ import {
   ScrollRestoration,
   useMatches,
 } from "@remix-run/react";
-import { LinksFunction } from "@remix-run/node";
+import { LinksFunction } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
 

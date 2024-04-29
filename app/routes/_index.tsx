@@ -1,6 +1,6 @@
 import EncryptForm from "@/components/EncryptForm";
 import ErrorOutput from "@/components/ErrorOutput";
-import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
 import { json, redirect, useActionData } from "@remix-run/react";
 import { storeMessage } from "prisma/message";
 import { z } from "zod";
