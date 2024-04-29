@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <section className="flex w-full flex-1 py-16 md:py-32">
           {children}
         </section>
-        {includeScripts ? (
+        {includeScripts || process.env.NODE_ENV === "development" ? (
           <>
             <ScrollRestoration />
             <Scripts />
