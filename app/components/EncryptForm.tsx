@@ -1,17 +1,26 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import PasswordInput from "./PasswordInput";
-import { LinkSimple, LockKey } from "@phosphor-icons/react/dist/ssr";
+import {
+  CircleNotch,
+  LinkSimple,
+  LockKey,
+} from "@phosphor-icons/react/dist/ssr";
 
 export default function EncryptForm() {
+  const { state } = useNavigation();
+
   return (
     <>
       <Form id="form" method="post" className="flex flex-col gap-4">
         <div className="space-y-2">
           <Label className="block text-left" htmlFor="message">
-            Your Message
+            Your Message{" "}
+            <span className="text-xs text-muted-foreground">
+              (max 500 characters)
+            </span>
           </Label>
           <Textarea
             className="min-h-[100px]"
@@ -21,7 +30,12 @@ export default function EncryptForm() {
           />
         </div>
         <PasswordInput />
-        <Button className="w-full gap-1" type="button" id="openDialog">
+        <Button
+          disabled={state === "submitting"}
+          className="w-full gap-1"
+          type="button"
+          id="openDialog"
+        >
           <LockKey size={20} weight="duotone" />
           Encrypt message
         </Button>
@@ -33,7 +47,11 @@ export default function EncryptForm() {
                 }
             `}
           </style>
-          <Button className="w-full gap-1" type="submit">
+          <Button
+            disabled={state === "submitting"}
+            className="w-full gap-1"
+            type="submit"
+          >
             <LinkSimple size={20} weight="duotone" />
             Generate Link
           </Button>
@@ -58,6 +76,7 @@ export default function EncryptForm() {
                 sm:space-x-2"
             >
               <Button
+                disabled={state === "submitting"}
                 id="closeDialog"
                 type="button"
                 variant={"outline"}
@@ -65,9 +84,18 @@ export default function EncryptForm() {
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
-                <LinkSimple size={20} weight="duotone" />
-                Generate Link
+              <Button disabled={state === "submitting"} type="submit" size="sm">
+                {state === "submitting" ? (
+                  <>
+                    <CircleNotch className="animate-spin" size={20} />
+                    Generating Link...
+                  </>
+                ) : (
+                  <>
+                    <LinkSimple size={20} weight="duotone" />
+                    Generate Link
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -82,12 +110,15 @@ export default function EncryptForm() {
             const dialog = form.querySelector('#dialog');
             const openDialogButton = form.querySelector('#openDialog');
             const closeDialogButton = form.querySelector('#closeDialog');
-            console.log(dialog);
+            const submitButton = form.querySelector('button[type="submit"]');
             openDialogButton.addEventListener('click', () => {
               dialog.showModal();
             });
             closeDialogButton.addEventListener('click', () => {
               console.log("close dialog")
+              dialog.close();
+            });
+            submitButton.addEventListener('click', () => {
               dialog.close();
             });
           });
