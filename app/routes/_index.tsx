@@ -1,7 +1,9 @@
 import EncryptForm from "@/components/EncryptForm";
+import ErrorOutput from "@/components/ErrorOutput";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/react";
+import { json, redirect, useActionData } from "@remix-run/react";
 import { storeMessage } from "prisma/message";
+import { z } from "zod";
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,19 +13,29 @@ export const meta: MetaFunction = () => {
 };
 
 export async function action({ request }: ActionFunctionArgs) {
-  const body = await request.formData();
-  const message = body.get("message");
-  const password = body.get("password");
-  if (!password || !message) {
-    return new Response("Missing message or password", {
-      status: 400,
-    });
+  const formData = await request.formData();
+  const message = String(formData.get("message"));
+  const password = String(formData.get("password"));
+  const schema = z.object({
+    message: z
+      .string()
+      .min(2, "Message needs at least two characters.")
+      .max(500, "Message can't be longer than 500 characters."),
+    password: z.string().min(4, "Password needs at least four characters."),
+  });
+  const { error, data } = schema.safeParse({ message, password });
+  if (error) {
+    return json({ errors: error.errors }, { status: 400 });
   }
-  const data = await storeMessage(message.toString(), password.toString());
-  return redirect(`/${data.uuid}`);
+  const { uuid } = await storeMessage(data.message, data.password);
+  return redirect(`/${uuid}`);
 }
 
 export default function Index() {
+  const actionData = useActionData<typeof action>();
+  const errors = actionData?.errors;
+
+  // actionData?.error && console.log(actionData.error);
   return (
     <div
       className="container flex h-full flex-col items-center justify-center
@@ -47,6 +59,15 @@ export default function Index() {
       </div>
       <div className="w-full max-w-sm space-y-4">
         <EncryptForm />
+        {errors &&
+          errors.length > 0 &&
+          errors.map(({ message }, i) => (
+            <ErrorOutput
+              className="bg-red-100 px-2 py-3"
+              key={i}
+              message={message}
+            />
+          ))}
       </div>
     </div>
   );

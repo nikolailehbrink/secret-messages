@@ -5,7 +5,8 @@ import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import PasswordInput from "@/components/PasswordInput";
-import { LockKey, LockKeyOpen, Warning } from "@phosphor-icons/react/dist/ssr";
+import { LockKey, LockKeyOpen } from "@phosphor-icons/react/dist/ssr";
+import ErrorOutput from "@/components/ErrorOutput";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
@@ -66,15 +67,7 @@ export default function $uuid() {
           <LockKeyOpen size={24} weight="duotone" />
           Show message
         </Button>
-        {error && (
-          <div
-            className="flex items-center justify-center gap-2 rounded-md text-sm
-              text-red-700"
-          >
-            <Warning size={20} weight="duotone" />
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ErrorOutput message={error} />}
       </Form>
       <div
         className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm
