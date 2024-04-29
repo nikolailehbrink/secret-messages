@@ -12,7 +12,10 @@ import "@fontsource-variable/inter";
 
 import styles from "@/index.css?url";
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+  { rel: "icon", type: "image/png", href: "/icon.png" },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const matches = useMatches();
