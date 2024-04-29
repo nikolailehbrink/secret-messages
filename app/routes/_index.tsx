@@ -7,8 +7,8 @@ import { z } from "zod";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Secret Message App" },
+    { name: "description", content: "Share confidential messages securely." },
   ];
 };
 
