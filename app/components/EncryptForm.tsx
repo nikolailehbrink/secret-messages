@@ -12,7 +12,12 @@ export default function EncryptForm() {
 
   return (
     <>
-      <Form id="form" method="post" className="flex flex-col gap-4">
+      <Form
+        id="form"
+        method="post"
+        className="flex flex-col gap-4 rounded-lg bg-white/30 p-4 shadow-md
+          ring-2 ring-white/70 backdrop-blur-md"
+      >
         <div className="space-y-2">
           <Label className="block text-left" htmlFor="message">
             Your Message{" "}
@@ -21,7 +26,7 @@ export default function EncryptForm() {
             </span>
           </Label>
           <Textarea
-            className="min-h-[100px]"
+            className="min-h-[120px]"
             id="message"
             name="message"
             placeholder="Type your secret message here..."
