@@ -112,7 +112,10 @@ export default function $uuid() {
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">
-      <p className="rounded-xl rounded-es-none bg-white p-4 px-5 shadow-md">
+      <p
+        className="rounded-xl rounded-es-none bg-white/75 p-4 px-5 shadow-md
+          backdrop-blur-xl"
+      >
         {decryptedMessage}
       </p>
       <p className="text-xs text-muted-foreground">{creationDate}</p>
