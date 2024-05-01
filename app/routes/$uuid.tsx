@@ -16,7 +16,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!message) {
     throw new Response("Not found", { status: 404 });
   }
-  return json({ message });
+  const { createdAt } = message;
+  return json({ createdAt });
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -54,7 +55,7 @@ export default function $uuid() {
   const creationDate = new Intl.DateTimeFormat("de-DE", {
     dateStyle: "full",
     timeStyle: "short",
-  }).format(new Date(loaderData.message.createdAt));
+  }).format(new Date(loaderData.createdAt));
   const error = actionData?.error;
 
   return !decryptedMessage ? (
