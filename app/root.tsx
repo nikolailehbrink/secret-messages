@@ -4,7 +4,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useMatches,
 } from "@remix-run/react";
 import { LinksFunction } from "@vercel/remix";
 // Supports weights 100-900
@@ -18,10 +17,6 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const matches = useMatches();
-  // @ts-expect-error - `hydrate` is not a valid property on `handle`
-  const includeScripts = matches.some((match) => match.handle?.hydrate);
-
   return (
     <html lang="en" className="font-inter">
       <head>
@@ -38,12 +33,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <section className="flex w-full flex-1 py-16 md:py-32">
           {children}
         </section>
-        {includeScripts || process.env.NODE_ENV === "development" ? (
-          <>
-            <ScrollRestoration />
-            <Scripts />
-          </>
-        ) : null}
+
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
