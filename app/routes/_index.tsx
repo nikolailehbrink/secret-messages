@@ -16,6 +16,16 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+const schema = z.object({
+  message: z
+    .string()
+    .min(2, "The message needs at least two characters.")
+    .max(500, "The message can't be longer than 500 characters."),
+  password: z.string().min(4, "The password needs at least four characters."),
+});
+
+export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
+
 const features = [
   {
     title: "Secure",
@@ -39,16 +49,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const message = String(formData.get("message"));
   const password = String(formData.get("password"));
-  const schema = z.object({
-    message: z
-      .string()
-      .min(2, "Message needs at least two characters.")
-      .max(500, "Message can't be longer than 500 characters."),
-    password: z.string().min(4, "Password needs at least four characters."),
-  });
+
   const { error, data } = schema.safeParse({ message, password });
+
   if (error) {
-    return json({ errors: error.errors }, { status: 400 });
+    return json({ errors: error.flatten() }, { status: 400 });
   }
   const { uuid } = await storeMessage(data.message, data.password);
   return redirect(`/${uuid}`);
@@ -77,16 +82,7 @@ export default function Index() {
         </p>
       </div>
       <div className="w-full max-w-md space-y-4">
-        <EncryptForm />
-        {errors &&
-          errors.length > 0 &&
-          errors.map(({ message }, i) => (
-            <ErrorOutput
-              className="bg-red-100 px-2 py-3"
-              key={i}
-              message={message}
-            />
-          ))}
+        <EncryptForm errors={errors} />
       </div>
       <section className="py-8 sm:p-12">
         <div className="space-y-4">
