@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -9,39 +10,47 @@ export default function PasswordInput({
 }: {
   placeholderText?: string;
 }) {
-  return (
-    <>
-      <div className="relative space-y-2">
-        <Label className="block text-left" htmlFor="password">
-          Password
-        </Label>
-        <div className="relative">
-          <Input
-            id="password"
-            placeholder={placeholderText}
-            type="password"
-            name="password"
-            className="pr-9"
-          />
+  const passwordRef = useRef<HTMLInputElement>(null!);
+  const [passwordVisibility, setPasswordVisibility] = useState(false);
 
-          <Button
-            id="togglePasswordVisibility"
-            className="absolute bottom-1 right-1 size-8"
-            size="icon"
-            variant="ghost"
-            type="button"
-          >
-            <Eye id="showPassword" size={20} weight="duotone" />
-            <EyeSlash
-              id="hidePassword"
-              className="hidden"
-              size={20}
-              weight="duotone"
-            />
-            <span className="sr-only">Toggle password visibility</span>
-          </Button>
-        </div>
+  useEffect(() => {
+    if (passwordVisibility) {
+      passwordRef.current.type = "text";
+    } else {
+      passwordRef.current.type = "password";
+    }
+  }, [passwordVisibility]);
+
+  return (
+    <div className="relative space-y-2">
+      <Label className="block text-left" htmlFor="password">
+        Password
+      </Label>
+      <div className="relative">
+        <Input
+          id="password"
+          ref={passwordRef}
+          placeholder={placeholderText}
+          type="password"
+          name="password"
+          className="pr-9"
+        />
+
+        <Button
+          className="absolute bottom-1 right-1 size-8"
+          size="icon"
+          variant="ghost"
+          type="button"
+          onClick={() => setPasswordVisibility(!passwordVisibility)}
+        >
+          {passwordVisibility ? (
+            <EyeSlash size={20} weight="duotone" />
+          ) : (
+            <Eye size={20} weight="duotone" />
+          )}
+          <span className="sr-only">Toggle password visibility</span>
+        </Button>
       </div>
-    </>
+    </div>
   );
 }
