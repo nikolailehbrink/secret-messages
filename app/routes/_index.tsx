@@ -1,5 +1,4 @@
 import EncryptForm from "@/components/EncryptForm";
-import ErrorOutput from "@/components/ErrorOutput";
 import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
 import { json, redirect, useActionData } from "@remix-run/react";
 import { storeMessage } from "prisma/message";
@@ -8,6 +7,7 @@ import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 import { UsersThree } from "@phosphor-icons/react/dist/ssr/UsersThree";
 import GradientHeading from "@/components/GradientHeading";
+import { cn } from "@/lib/utils";
 
 export const meta: MetaFunction = () => {
   return [
@@ -63,7 +63,6 @@ export default function Index() {
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
 
-  // actionData?.error && console.log(actionData.error);
   return (
     <div
       className="container flex h-full flex-col items-center justify-center
@@ -120,23 +119,38 @@ export default function Index() {
           className="mt-6 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-2
             lg:grid-cols-3"
         >
-          {features.map((benefit) => {
-            const Icon = benefit.icon;
+          {features.map(({ icon, title, description }, index) => {
+            const Icon = icon;
 
             return (
-              <div
-                key={benefit.title}
-                className="flex flex-col items-center justify-center space-y-1
-                  rounded-lg border-2 border-white/30 bg-white/30 p-4
-                  text-neutral-700 backdrop-blur-sm"
-              >
-                <Icon weight="duotone" size={32} />
-                <GradientHeading level="3" className="text-xl font-bold">
-                  {benefit.title}
-                </GradientHeading>
-                <p className="text-neutral-500 dark:text-neutral-400">
-                  {benefit.description}
-                </p>
+              <div className="relative flex flex-col" key={title}>
+                <div
+                  className={cn(
+                    `absolute inset-0 rounded-lg bg-gradient-to-bl from-rose-500
+                    via-sky-500 to-fuchsia-500 opacity-15 blur-md`,
+                    index % 2 === 0 && "bg-gradient-to-tl sm:bg-gradient-to-br",
+                  )}
+                ></div>
+                <div
+                  className={cn(
+                    `absolute -inset-[2px] rounded-lg bg-gradient-to-bl
+                    from-rose-500 via-sky-500 to-fuchsia-500 opacity-20`,
+                    index % 2 === 0 && "bg-gradient-to-tl sm:bg-gradient-to-br",
+                  )}
+                ></div>
+                <div
+                  className="relative flex h-full flex-col items-center
+                    justify-center space-y-1 rounded-md bg-white/40 p-4
+                    text-neutral-600 backdrop-blur-2xl"
+                >
+                  <Icon weight="duotone" size={32} />
+                  <GradientHeading level="3" className="text-xl font-bold">
+                    {title}
+                  </GradientHeading>
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    {description}
+                  </p>
+                </div>
               </div>
             );
           })}
