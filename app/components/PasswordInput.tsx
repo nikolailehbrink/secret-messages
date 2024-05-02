@@ -42,15 +42,6 @@ export default function PasswordInput({
           </Button>
         </div>
       </div>
-      <noscript className="hidden">
-        <style>
-          {`
-                #togglePasswordVisibility {
-                display: none;
-                }
-            `}
-        </style>
-      </noscript>
     </>
   );
 }
