@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@vercel/remix";
-import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { getMessage } from "prisma/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
@@ -8,6 +8,9 @@ import PasswordInput from "@/components/PasswordInput";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
 import ErrorOutput from "@/components/ErrorOutput";
+import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import usePageUrl from "@/hooks/usePageUrl";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
@@ -49,45 +52,81 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function $uuid() {
+  const fetcher = useFetcher<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
-  const decryptedMessage = actionData?.decryptedMessage;
-  const creationDate = new Intl.DateTimeFormat("de-DE", {
+  const { data, state } = fetcher;
+  const decryptedMessage = data?.decryptedMessage;
+  const creationDate = new Intl.DateTimeFormat("en-US", {
     dateStyle: "full",
     timeStyle: "short",
   }).format(new Date(loaderData.createdAt));
-  const error = actionData?.error;
+  const error = data?.error;
+
+  const pageUrl = usePageUrl();
 
   return !decryptedMessage ? (
     <div
-      className="container h-full w-full max-w-sm space-y-6 self-center px-4
+      className="container flex flex-col items-center space-y-6 self-center px-4
         md:px-6"
     >
-      <Form id="form" method="post" className="flex flex-col gap-4">
+      <fetcher.Form
+        id="form"
+        method="post"
+        className="flex w-full max-w-sm flex-col gap-4"
+      >
         <PasswordInput placeholderText="Enter the password for the message" />
-        <Button className="w-full">
-          <LockKeyOpen size={24} weight="duotone" />
-          Show message
+        <Button disabled={state === "submitting"} className="w-full">
+          {state === "submitting" ? (
+            <>
+              <CircleNotch className="animate-spin" size={20} />
+              Decrypt message...
+            </>
+          ) : (
+            <>
+              <LockKeyOpen size={24} weight="duotone" />
+              Show message
+            </>
+          )}
         </Button>
         {error && <ErrorOutput message={error} />}
-      </Form>
+      </fetcher.Form>
       <div
-        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm
-          text-muted-foreground"
+        className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3
+          text-sm text-muted-foreground"
       >
-        <hr className="min-w-3 shrink-0 border-neutral-300" />
+        <hr className="min-w-3 shrink-0 border-black/10" />
         <p className="max-w-56 text-center">
           or copy the link to the message{" "}
           <noscript>from the adress bar</noscript>
         </p>
-        <hr className="min-w-3 shrink-0 border-neutral-300" />
+        <hr className="min-w-3 shrink-0 border-black/10" />
       </div>
 
       <div
         id="url"
-        className="hidden w-full select-all rounded-md border border-input
-          bg-background px-3 py-2 text-sm text-neutral-600"
-      ></div>
+        className="relative max-w-fit text-pretty rounded-md bg-black/5 px-3
+          py-2 pr-10 text-sm text-neutral-600"
+      >
+        <Button
+          className="absolute right-[2px] top-[2px] size-8 text-neutral-900
+            hover:bg-neutral-100"
+          size="icon"
+          variant="ghost"
+          type="button"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(pageUrl);
+              console.log("Copied to clipboard");
+            } catch (error) {
+              console.error("Failed to copy to clipboard", error);
+            }
+          }}
+        >
+          <Clipboard size={20} weight="duotone" />
+        </Button>
+        <div className="absolute right-0"></div>
+        {pageUrl}
+      </div>
       <noscript className="hidden">
         <style>
           {`
