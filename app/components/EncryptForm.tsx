@@ -105,29 +105,6 @@ export default function EncryptForm() {
         </dialog>
       </Form>
 
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('form');
-            const dialog = form.querySelector('#dialog');
-            const openDialogButton = form.querySelector('#openDialog');
-            const closeDialogButton = form.querySelector('#closeDialog');
-            const submitButton = form.querySelector('button[type="submit"]');
-            openDialogButton.addEventListener('click', () => {
-              dialog.showModal();
-            });
-            closeDialogButton.addEventListener('click', () => {
-              console.log("close dialog")
-              dialog.close();
-            });
-            submitButton.addEventListener('click', () => {
-              dialog.close();
-            });
-          });
-        `,
-        }}
-      />
     </>
   );
 }

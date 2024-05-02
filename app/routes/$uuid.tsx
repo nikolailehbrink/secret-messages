@@ -97,19 +97,6 @@ export default function $uuid() {
           `}
         </style>
       </noscript>
-      <script
-        className="hidden"
-        dangerouslySetInnerHTML={{
-          __html: `
-        document.addEventListener('DOMContentLoaded', () => {
-          const url = document.getElementById("url");
-          const href = window.location.href;
-          url.style.display = "flex";
-          url.textContent = href;
-          });
-        `,
-        }}
-      ></script>
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">

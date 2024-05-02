@@ -51,28 +51,6 @@ export default function PasswordInput({
             `}
         </style>
       </noscript>
-      <script
-        className="hidden"
-        dangerouslySetInnerHTML={{
-          __html: `
-        const passwordInput = document.getElementById("password");
-        const toggleButton = document.getElementById("togglePasswordVisibility");
-        const showPassword = document.getElementById("showPassword");
-        const hidePassword = document.getElementById("hidePassword");
-        toggleButton.addEventListener("click", () => {
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            showPassword.style.display = "none";
-            hidePassword.style.display = "block";
-        } else {
-            passwordInput.type = "password";
-            hidePassword.style.display = "none";
-            showPassword.style.display = "block";
-        }
-        });
-    `,
-        }}
-      />
     </>
   );
 }
