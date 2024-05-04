@@ -53,13 +53,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function $uuid() {
   const fetcher = useFetcher<typeof action>();
-  const loaderData = useLoaderData<typeof loader>();
+  const { createdAt } = useLoaderData<typeof loader>();
   const { data, state } = fetcher;
   const decryptedMessage = data?.decryptedMessage;
   const creationDate = new Intl.DateTimeFormat("en-US", {
     dateStyle: "full",
     timeStyle: "short",
-  }).format(new Date(loaderData.createdAt));
+  }).format(new Date(createdAt));
   const error = data?.error;
 
   const pageUrl = usePageUrl();
