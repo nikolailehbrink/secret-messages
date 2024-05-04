@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { v4 as uuidv4 } from "uuid";
 import { encryptText } from "@/lib/crypto";
+import short from "short-uuid";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +10,7 @@ export async function storeMessage(message: string, password: string) {
   return prisma.message.create({
     data: {
       encryptedContent: encryptedMessage,
-      uuid: uuidv4(),
+      uuid: short.generate(),
       iv,
     },
   });
