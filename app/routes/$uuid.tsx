@@ -75,6 +75,7 @@ export default function $uuid() {
         className="flex w-full max-w-sm flex-col gap-4"
       >
         <PasswordInput placeholderText="Enter the password for the message" />
+        {error && <ErrorOutput message={error} />}
         <Button disabled={state === "submitting"} className="w-full">
           {state === "submitting" ? (
             <>
@@ -88,7 +89,6 @@ export default function $uuid() {
             </>
           )}
         </Button>
-        {error && <ErrorOutput message={error} />}
       </fetcher.Form>
       <div
         className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3

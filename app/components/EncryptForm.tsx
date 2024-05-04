@@ -37,7 +37,7 @@ export default function EncryptForm({ errors }: { errors?: FlattenedErrors }) {
             <span
               className={cn(
                 "text-xs text-muted-foreground",
-                charCount > 500 && "text-red-500",
+                charCount > 500 || (charCount < 2 && "text-red-500"),
               )}
             >
               {charCount}/500
@@ -48,19 +48,20 @@ export default function EncryptForm({ errors }: { errors?: FlattenedErrors }) {
             </span>
           )}
         </div>
+        {messageErrors &&
+          messageErrors.map((error, index) => (
+            <ErrorOutput key={index} message={error} />
+          ))}
         <Textarea
           className="min-h-[120px] "
           id="message"
           name="message"
           placeholder="Type your secret message here..."
-          // minLength={2}
+          minLength={2}
+          maxLength={500}
           onChange={(e) => setCharCount(e.target.value.length)}
         />
       </div>
-      {messageErrors &&
-        messageErrors.map((error, index) => (
-          <ErrorOutput key={index} message={error} />
-        ))}
       <PasswordInput />
       {passwordErrors &&
         passwordErrors.map((error, index) => (
