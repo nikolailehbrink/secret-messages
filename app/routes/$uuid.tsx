@@ -94,18 +94,24 @@ export default function $uuid() {
         className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3
           text-sm text-muted-foreground"
       >
-        <hr className="min-w-3 shrink-0 border-black/10" />
+        <hr
+          className="h-px min-w-3 shrink-0 border-none bg-gradient-to-r
+            from-transparent to-black/15"
+        />
         <p className="max-w-56 text-center">
           or copy the link to the message{" "}
           <noscript>from the adress bar</noscript>
         </p>
-        <hr className="min-w-3 shrink-0 border-black/10" />
+        <hr
+          className="h-px min-w-3 shrink-0 rotate-180 border-none
+            bg-gradient-to-r from-transparent to-black/15"
+        />
       </div>
 
       <div
         id="url"
-        className="relative max-w-fit text-pretty rounded-md bg-black/5 px-3
-          py-2 pr-10 text-sm text-neutral-600"
+        className="relative max-w-fit text-pretty break-all rounded-md
+          bg-black/5 px-3 py-2 pr-10 text-sm text-neutral-600"
       >
         <Button
           className="absolute right-[2px] top-[2px] size-8 text-neutral-900

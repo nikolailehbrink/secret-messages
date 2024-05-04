@@ -70,7 +70,7 @@ export default function Index() {
     >
       <div className="space-y-2 sm:space-y-4">
         <GradientHeading className="text-4xl md:text-5xl lg:text-6xl/snug">
-          Secret Message
+          Secret Messages
         </GradientHeading>
         <p
           className="mx-auto max-w-[700px] text-neutral-600
@@ -116,14 +116,12 @@ export default function Index() {
           </p>
         </div>
         <div
-          className="mt-6 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-2
-            lg:grid-cols-3"
+          className="mt-6 grid max-w-5xl grid-cols-1 justify-items-center gap-4
+            md:grid-cols-2 lg:grid-cols-3"
         >
-          {features.map(({ icon, title, description }, index) => {
-            const Icon = icon;
-
+          {features.map(({ icon: Icon, title, description }, index) => {
             return (
-              <div className="relative flex flex-col" key={title}>
+              <div className="relative flex max-w-md flex-col" key={title}>
                 <div
                   className={cn(
                     `absolute inset-0 rounded-lg bg-gradient-to-bl from-rose-500
@@ -140,16 +138,14 @@ export default function Index() {
                 ></div>
                 <div
                   className="relative flex h-full flex-col items-center
-                    justify-center space-y-1 rounded-md bg-white/40 p-4
-                    text-neutral-600 backdrop-blur-2xl"
+                    justify-center space-y-1 rounded-md bg-white/50 p-4
+                    text-neutral-700 backdrop-blur-2xl"
                 >
                   <Icon weight="duotone" size={32} />
                   <GradientHeading level="3" className="text-xl font-bold">
                     {title}
                   </GradientHeading>
-                  <p className="text-neutral-600 dark:text-neutral-400">
-                    {description}
-                  </p>
+                  <p>{description}</p>
                 </div>
               </div>
             );
