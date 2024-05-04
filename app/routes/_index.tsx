@@ -5,7 +5,7 @@ import { storeMessage } from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
-import { UsersThree } from "@phosphor-icons/react/dist/ssr/UsersThree";
+import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
 import GradientHeading from "@/components/GradientHeading";
 import { cn } from "@/lib/utils";
 
@@ -38,10 +38,9 @@ const features = [
     icon: LinkSimple,
   },
   {
-    title: "Accessible",
-    description:
-      "No registration for you or your recipient. Just a password to access the message.",
-    icon: UsersThree,
+    title: "Anonymous",
+    description: "No IP addresses or personal information is stored.",
+    icon: Detective,
   },
 ];
 
