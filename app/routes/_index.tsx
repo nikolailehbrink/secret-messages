@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Secret Message App" },
+    { title: "secretmessag.es - Share confidential messages" },
     { name: "description", content: "Share confidential messages securely." },
   ];
 };
