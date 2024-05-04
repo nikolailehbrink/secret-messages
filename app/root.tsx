@@ -10,6 +10,7 @@ import { LinksFunction } from "@vercel/remix";
 import "@fontsource-variable/inter";
 
 import styles from "@/index.css?url";
+import Footer from "./components/Footer";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -37,9 +38,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <section className="flex w-full flex-1 pt-16 sm:py-16 md:py-24">
           {children}
         </section>
-
         <ScrollRestoration />
         <Scripts />
+        <Footer />
       </body>
     </html>
   );
