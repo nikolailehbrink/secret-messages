@@ -27,3 +27,7 @@ export async function getMessage(uuid: string) {
 export async function getMessages() {
   return prisma.message.findMany();
 }
+
+export async function getMessageCount() {
+  return prisma.message.count();
+}

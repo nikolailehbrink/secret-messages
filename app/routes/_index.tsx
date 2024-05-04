@@ -1,7 +1,7 @@
 import EncryptForm from "@/components/EncryptForm";
 import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json, redirect, useActionData } from "@remix-run/react";
-import { storeMessage } from "prisma/message";
+import { json, redirect, useActionData, useLoaderData } from "@remix-run/react";
+import { getMessageCount, storeMessage } from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
@@ -44,6 +44,11 @@ const features = [
   },
 ];
 
+export async function loader() {
+  const messageCount = await getMessageCount();
+  return json({ messageCount });
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const message = String(formData.get("message"));
@@ -59,6 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Index() {
+  const { messageCount } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors;
 
@@ -77,6 +83,10 @@ export default function Index() {
         >
           Share confidential messages with your friends and family securely.
           Create a unique link and password to access your message.
+        </p>
+        <p className="inline-block rounded-md bg-white p-1 px-2 text-sm">
+          <span className="font-bold">{messageCount}</span> secret{" "}
+          {messageCount === 1 ? "message" : "messages"} already created.
         </p>
       </div>
       <div className="w-full max-w-md space-y-4">
