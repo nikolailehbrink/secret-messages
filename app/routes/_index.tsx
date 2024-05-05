@@ -7,7 +7,7 @@ import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
 import GradientHeading from "@/components/GradientHeading";
-import { cn } from "@/lib/utils";
+import GradientContainer from "@/components/GradientContainer";
 
 export const meta: MetaFunction = () => {
   return [
@@ -84,29 +84,33 @@ export default function Index() {
           Share confidential messages with your friends and family securely.
           Create a unique link and password to access your message.
         </p>
-        <p className="inline-block rounded-md bg-white p-1 px-2 text-sm">
-          <span className="font-bold">{messageCount}</span> secret{" "}
-          {messageCount === 1 ? "message" : "messages"} already created.
-        </p>
+        <GradientContainer className="!mt-8 inline-flex" rotate>
+          <div className="rounded-md bg-white/40 backdrop-blur-md">
+            <p
+              className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
+                to-fuchsia-500 bg-clip-text p-1 px-2 text-sm text-black/40
+                backdrop-blur-md"
+            >
+              <span className="font-bold">{messageCount}</span> secret{" "}
+              {messageCount === 1 ? "message" : "messages"} already created.
+            </p>
+          </div>
+        </GradientContainer>
       </div>
       <div className="w-full max-w-md space-y-4">
         <EncryptForm errors={errors} />
       </div>
       <section className="py-8 sm:p-12">
         <div className="space-y-4">
-          <div className="relative inline-block rounded-full">
+          <GradientContainer className="inline-flex">
             <div
-              className="absolute -inset-[2px] -z-10 rounded-full
-                bg-gradient-to-br from-rose-500/20 via-sky-500/20
-                to-fuchsia-500/20"
-            ></div>
-            <div
-              className="inline-block rounded-full bg-white/30 p-1 px-2 text-sm
+              className="rounded-md bg-white/50 p-1 px-2 text-sm
                 backdrop-blur-md"
             >
               <p className="relative">How it Works</p>
             </div>
-          </div>
+          </GradientContainer>
+
           <GradientHeading
             className="text-3xl font-bold tracking-tighter sm:text-4xl
               lg:text-4xl"
@@ -130,21 +134,11 @@ export default function Index() {
         >
           {features.map(({ icon: Icon, title, description }, index) => {
             return (
-              <div className="relative flex max-w-md flex-col" key={title}>
-                <div
-                  className={cn(
-                    `absolute inset-0 rounded-lg bg-gradient-to-bl from-rose-500
-                    via-sky-500 to-fuchsia-500 opacity-15 blur-md`,
-                    index % 2 === 0 && "bg-gradient-to-tl sm:bg-gradient-to-br",
-                  )}
-                ></div>
-                <div
-                  className={cn(
-                    `absolute -inset-[2px] rounded-lg bg-gradient-to-bl
-                    from-rose-500 via-sky-500 to-fuchsia-500 opacity-20`,
-                    index % 2 === 0 && "bg-gradient-to-tl sm:bg-gradient-to-br",
-                  )}
-                ></div>
+              <GradientContainer
+                className="w-full max-w-md"
+                key={title}
+                rotate={index % 2 === 0}
+              >
                 <div
                   className="relative flex h-full flex-col items-center
                     justify-center space-y-1 rounded-md bg-white/50 p-4
@@ -156,7 +150,7 @@ export default function Index() {
                   </GradientHeading>
                   <p>{description}</p>
                 </div>
-              </div>
+              </GradientContainer>
             );
           })}
         </div>

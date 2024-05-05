@@ -2,6 +2,7 @@ import { Link } from "@remix-run/react";
 import { GithubLogo } from "@phosphor-icons/react/dist/ssr/GithubLogo";
 import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr/LinkedinLogo";
 import { XLogo } from "@phosphor-icons/react/dist/ssr/XLogo";
+import GradientContainer from "./GradientContainer";
 
 const socials = [
   {
@@ -62,11 +63,7 @@ export default function Footer() {
               Nikolai Lehbrink
             </Link>
           </p>
-          <div className="relative">
-            <div
-              className="absolute -inset-[2px] rounded-lg bg-gradient-to-bl
-                from-rose-500 via-sky-500 to-fuchsia-500 opacity-20"
-            ></div>
+          <GradientContainer>
             <div
               className="relative flex h-full items-center justify-center gap-2
                 rounded-md bg-white/50 p-1 px-2 text-neutral-700
@@ -84,7 +81,7 @@ export default function Footer() {
                 </Link>
               ))}
             </div>
-          </div>
+          </GradientContainer>
         </div>
       </section>
     </footer>

@@ -11,6 +11,7 @@ import ErrorOutput from "@/components/ErrorOutput";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import usePageUrl from "@/hooks/usePageUrl";
+import GradientContainer from "@/components/GradientContainer";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
@@ -107,31 +108,34 @@ export default function $uuid() {
             bg-gradient-to-r from-transparent to-black/15"
         />
       </div>
-
-      <div
-        id="url"
-        className="relative max-w-fit text-pretty break-all rounded-md
-          bg-black/5 px-3 py-2 pr-10 text-sm text-neutral-600"
-      >
-        <Button
-          className="absolute right-[2px] top-[2px] size-8 text-neutral-900
-            hover:bg-neutral-100"
-          size="icon"
-          variant="ghost"
-          type="button"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(pageUrl);
-              console.log("Copied to clipboard");
-            } catch (error) {
-              console.error("Failed to copy to clipboard", error);
-            }
-          }}
-        >
-          <Clipboard size={20} weight="duotone" />
-        </Button>
-        <div className="absolute right-0"></div>
-        {pageUrl}
+      <div className="flex gap-2">
+        <GradientContainer className="max-w-fit text-pretty break-all ">
+          <div
+            className="relative flex h-full gap-2 rounded-md bg-white/50 p-1
+              px-2 text-sm text-neutral-700 backdrop-blur-2xl"
+          >
+            <p className="line-clamp-1 self-center">{pageUrl}</p>
+          </div>
+        </GradientContainer>
+        <GradientContainer className="inline-flex self-start">
+          <Button
+            className="relative size-9 border-none bg-white/50
+              hover:bg-transparent"
+            size="icon"
+            variant="outline"
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(pageUrl);
+                console.log("Copied to clipboard");
+              } catch (error) {
+                console.error("Failed to copy to clipboard", error);
+              }
+            }}
+          >
+            <Clipboard size={20} weight="duotone" />
+          </Button>
+        </GradientContainer>
       </div>
       <noscript className="hidden">
         <style>
