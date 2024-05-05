@@ -28,6 +28,11 @@ export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 const features = [
   {
+    title: "Anonymous",
+    description: "No IP addresses or personal information is stored.",
+    icon: Detective,
+  },
+  {
     title: "Secure",
     description: "Your message is encrypted and protected with a password.",
     icon: LockKey,
@@ -36,11 +41,6 @@ const features = [
     title: "Shareable",
     description: "Generate a unique link to share your message with others.",
     icon: LinkSimple,
-  },
-  {
-    title: "Anonymous",
-    description: "No IP addresses or personal information is stored.",
-    icon: Detective,
   },
 ];
 
