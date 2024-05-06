@@ -23,6 +23,7 @@
     "@remix-run/serve": "^2.9.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/uuid": "^9.0.8",
+    "@vercel/analytics": "^1.2.2",
     "@vercel/remix": "^2.9.1",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",

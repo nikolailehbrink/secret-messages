@@ -8,6 +8,7 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react";
+import { Analytics } from "@vercel/analytics/react";
 import { LinksFunction, MetaFunction } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
@@ -82,6 +83,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ScrollRestoration />
         <Scripts />
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
