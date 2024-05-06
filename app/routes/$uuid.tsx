@@ -56,7 +56,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const message = await getMessage(params.uuid);
   if (!message) {
-    throw new Response("Not found", { status: 404 });
+    throw new Response(
+      `The message you are looking for does not exist. Please check the URL and try again.`,
+      {
+        status: 404,
+        statusText: "Message not found!",
+      },
+    );
   }
   const { createdAt } = message;
   return json({ createdAt });
