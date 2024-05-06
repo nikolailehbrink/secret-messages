@@ -15,8 +15,13 @@ import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
 import ErrorOutput from "@/components/ErrorOutput";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
+
 import usePageUrl from "@/hooks/usePageUrl";
 import GradientContainer from "@/components/GradientContainer";
+import { useState } from "react";
+
 export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches
     .flatMap((match) => match.meta ?? [])
@@ -95,6 +100,9 @@ export default function $uuid() {
     timeStyle: "short",
   }).format(new Date(createdAt));
   const error = data?.error;
+  const [copyToClipboardIcon, setCopyToClipboardIcon] = useState({
+    icon: Clipboard,
+  });
 
   const pageUrl = usePageUrl();
 
@@ -160,13 +168,19 @@ export default function $uuid() {
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(pageUrl);
-                console.log("Copied to clipboard");
+                setCopyToClipboardIcon({ icon: CheckCircle });
               } catch (error) {
-                console.error("Failed to copy to clipboard", error);
+                setCopyToClipboardIcon({ icon: XCircle });
+              } finally {
+                setTimeout(() => {
+                  setCopyToClipboardIcon({ icon: Clipboard });
+                }, 2000);
               }
             }}
           >
-            <Clipboard size={20} weight="duotone" />
+            {copyToClipboardIcon.icon && (
+              <copyToClipboardIcon.icon weight="duotone" size={20} />
+            )}
           </Button>
         </GradientContainer>
       </div>
