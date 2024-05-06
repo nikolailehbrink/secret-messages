@@ -8,6 +8,8 @@ import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import ErrorOutput from "@/components/ErrorOutput";
 
 export const meta: MetaFunction = () => {
   return [
@@ -57,17 +59,32 @@ export async function action({ request }: ActionFunctionArgs) {
   const { error, data } = schema.safeParse({ message, password });
 
   if (error) {
-    return json({ errors: error.flatten() }, { status: 400 });
+    return json(
+      { formErrors: error.flatten(), uuidError: null },
+      { status: 400 },
+    );
   }
-  const { uuid } = await storeMessage(data.message, data.password);
-  return redirect(`/${uuid}`);
+  try {
+    const { uuid } = await storeMessage(data.message, data.password);
+    return redirect(`/${uuid}`);
+  } catch (error) {
+    if (
+      error instanceof PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    )
+      return json({
+        uuidError:
+          "An error occurred while attempting to save your message. Please try again.",
+        formErrors: null,
+      });
+  }
 }
 
 export default function Index() {
   const { messageCount } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const errors = actionData?.errors;
-
+  const formErrors = actionData?.formErrors;
+  const uuidError = actionData?.uuidError;
   return (
     <div
       className="container flex h-full flex-col items-center justify-center
@@ -98,7 +115,8 @@ export default function Index() {
         </GradientContainer>
       </div>
       <div className="w-full max-w-md space-y-4">
-        <EncryptForm errors={errors} />
+        <EncryptForm errors={formErrors} />
+        {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section className="py-8 sm:p-12">
         <div className="space-y-4">

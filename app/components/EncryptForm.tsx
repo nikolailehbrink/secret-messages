@@ -10,7 +10,11 @@ import { cn } from "@/lib/utils";
 import { FlattenedErrors } from "@/routes/_index";
 import ErrorOutput from "@/components/ErrorOutput";
 
-export default function EncryptForm({ errors }: { errors?: FlattenedErrors }) {
+export default function EncryptForm({
+  errors,
+}: {
+  errors?: FlattenedErrors | null;
+}) {
   const { state } = useNavigation();
   const [charCount, setCharCount] = useState(0);
   const passwordErrors = errors?.fieldErrors.password;
