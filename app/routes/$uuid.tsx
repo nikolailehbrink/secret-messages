@@ -190,20 +190,11 @@ export default function $uuid() {
           </Button>
         </GradientContainer>
       </div>
-      <noscript className="hidden">
-        <style>
-          {`
-          #url {
-            display: none;
-          }
-          `}
-        </style>
-      </noscript>
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">
       <p
-        className="rounded-xl rounded-es-none bg-white/75 p-4 px-5 shadow-md
+        className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
           backdrop-blur-xl"
       >
         {decryptedMessage}

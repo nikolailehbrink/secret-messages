@@ -93,20 +93,21 @@ export default function Index() {
   return (
     <div
       className="container flex h-full flex-col items-center justify-center
-        space-y-8 px-4 text-center md:space-y-16 md:px-6"
+        space-y-12 px-4 text-center md:space-y-16 md:px-6"
     >
-      <div className="space-y-2 sm:space-y-4">
-        <GradientHeading className="text-4xl md:text-5xl lg:text-6xl/snug">
+      <div>
+        <GradientHeading
+          className="text-4xl/snug md:text-5xl/snug lg:text-6xl/snug"
+        >
           Secret Messages
         </GradientHeading>
         <p
           className="mx-auto max-w-[700px] text-neutral-600
             dark:text-neutral-400 md:text-xl"
         >
-          Share confidential messages with your friends and family securely.
-          Create a unique link and password to access your message.
+          {description}
         </p>
-        <GradientContainer className="!mt-8 inline-flex" rotate>
+        <GradientContainer className="mt-4 inline-flex" rotate>
           <div className="rounded-md bg-white/40 backdrop-blur-md">
             <p
               className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
@@ -119,12 +120,12 @@ export default function Index() {
           </div>
         </GradientContainer>
       </div>
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md">
         <EncryptForm errors={formErrors} />
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>
-      <section className="py-8 sm:p-12">
-        <div className="space-y-4">
+      <section>
+        <div className="flex flex-col items-center gap-3">
           <GradientContainer className="inline-flex">
             <div
               className="rounded-md bg-white/50 p-1 px-2 text-sm
@@ -152,8 +153,8 @@ export default function Index() {
           </p>
         </div>
         <div
-          className="mt-6 grid max-w-5xl grid-cols-1 justify-items-center gap-4
-            md:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 grid max-w-5xl auto-rows-fr grid-cols-1
+            justify-items-center gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
           {features.map(({ icon: Icon, title, description }, index) => {
             return (

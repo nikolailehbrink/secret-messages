@@ -74,10 +74,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body
         className="flex min-h-[100dvh] flex-col text-balance bg-gradient-to-br
-          from-rose-500/10 via-sky-500/10 to-fuchsia-500/10
-          dark:from-[#6366F1]/10 dark:to-[#EC4899]/10"
+          from-rose-500/15 via-sky-500/15 to-fuchsia-500/15"
       >
-        <section className="flex w-full flex-1 pt-16 sm:py-16 md:py-24">
+        <section className="flex w-full flex-1 pb-4 pt-16 sm:pt-12 md:pt-24">
           {children}
         </section>
         <ScrollRestoration />
