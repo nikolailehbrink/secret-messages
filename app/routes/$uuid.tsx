@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@vercel/remix";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+  json,
+} from "@vercel/remix";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { getMessage } from "prisma/message";
 import invariant from "tiny-invariant";
@@ -12,6 +17,34 @@ import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import usePageUrl from "@/hooks/usePageUrl";
 import GradientContainer from "@/components/GradientContainer";
+export const meta: MetaFunction = ({ matches }) => {
+  const parentMeta = matches
+    .flatMap((match) => match.meta ?? [])
+    .filter((meta) => !("title" in meta));
+
+  const description =
+    "A secret message is waiting for you. Decrypt it with the password.";
+
+  return [
+    ...parentMeta,
+    {
+      title: "You got a message! - secretmessag.es",
+    },
+    {
+      name: "description",
+      content: description,
+    },
+    {
+      property: "og:description",
+      content: description,
+    },
+    {
+      name: "twitter:description",
+      content: description,
+    },
+    { name: "robots", content: "noindex, nofollow" },
+  ];
+};
 
 export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");

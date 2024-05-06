@@ -11,10 +11,15 @@ import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
 
-export const meta: MetaFunction = () => {
+const description =
+  "Share confidential messages securely with anyone. Generate unique links and passwords for exclusive access to your private information.";
+
+export const meta: MetaFunction = ({ matches }) => {
+  const parentMeta = matches.flatMap((match) => match.meta ?? []);
   return [
-    { title: "secretmessag.es - Share confidential messages" },
-    { name: "description", content: "Share confidential messages securely." },
+    ...parentMeta,
+    { property: "og:description", content: description },
+    { name: "twitter:description", content: description },
   ];
 };
 

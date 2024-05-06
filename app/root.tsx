@@ -8,7 +8,7 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react";
-import { LinksFunction } from "@vercel/remix";
+import { LinksFunction, MetaFunction } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
 import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
@@ -24,6 +24,40 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   { rel: "icon", type: "image/png", href: "/icon.png" },
 ];
+
+export const meta: MetaFunction = ({ error }) => {
+  const origin =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5173"
+      : "https://www.secretmessag.es";
+  const ogImagePath = "/og-image.jpg";
+  const title = error
+    ? isRouteErrorResponse(error) && error.status === 404
+      ? error.statusText + " - secretmessag.es"
+      : `An error occured! - secretmessag.es`
+    : "Share confidential messages - secretmessag.es";
+
+  return [
+    {
+      title,
+    },
+    { property: "og:title", content: title },
+    {
+      property: "og:image",
+      content: origin + ogImagePath,
+    },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: origin },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:image", content: origin + ogImagePath },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: origin,
+    },
+  ];
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
