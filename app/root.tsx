@@ -1,16 +1,24 @@
 import {
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
 import { LinksFunction } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
+import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
+import { ChatCircleDots } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
 
 import styles from "@/index.css?url";
 import Footer from "./components/Footer";
+import GradientHeading from "./components/GradientHeading";
+import usePageUrl from "./hooks/usePageUrl";
+import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -43,6 +51,47 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Footer />
       </body>
     </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const pageUrl = usePageUrl();
+  const error = useRouteError();
+  const notFound = isRouteErrorResponse(error) && error;
+  return (
+    <div
+      className="container flex flex-col items-center justify-center gap-2
+        text-center"
+    >
+      <GradientHeading level="1" className="text-4xl/snug">
+        {notFound ? notFound.statusText : "Oops! An error occurred"}
+      </GradientHeading>
+      <p className="max-w-prose text-muted-foreground">
+        {notFound
+          ? notFound.data
+          : "Please attempt your request again later. Should the issue persist, kindly report it to assist in resolving the matter promptly. Thank you for your cooperation."}
+      </p>
+      <div className="mt-2 flex flex-wrap justify-center gap-2">
+        <Button asChild variant="outline">
+          <Link to="/">
+            <ChatCircleDots
+              size={20}
+              weight="duotone"
+              className="-scale-x-100"
+            />
+            Create a secret message
+          </Link>
+        </Button>
+        <Button asChild>
+          <a
+            href={`mailto:mail@nikolailehbr.ink?subject=Error on ${pageUrl}?body=Hello, I encountered an error on ${pageUrl} and I would like to report it. Here is what I did that caused the error:`}
+          >
+            <EnvelopeSimpleOpen size={20} weight="duotone" />
+            Report an Issue
+          </a>
+        </Button>
+      </div>
+    </div>
   );
 }
 
