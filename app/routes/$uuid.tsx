@@ -9,7 +9,6 @@ import { getMessage } from "prisma/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
-import PasswordInput from "@/components/PasswordInput";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
 import ErrorOutput from "@/components/ErrorOutput";
@@ -20,7 +19,10 @@ import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
 
 import usePageUrl from "@/hooks/usePageUrl";
 import GradientContainer from "@/components/GradientContainer";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches
@@ -98,6 +100,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function $uuid() {
   const fetcher = useFetcher<typeof action>();
+  const passwordRef = useRef<HTMLInputElement>(null!);
+
   const { createdAt } = useLoaderData<typeof loader>();
   const { data, state } = fetcher;
   const decryptedMessage = data?.decryptedMessage;
@@ -122,8 +126,25 @@ export default function $uuid() {
         method="post"
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <PasswordInput placeholderText="Enter the password for the message" />
-        {error && <ErrorOutput message={error} />}
+        <div className="relative space-y-2">
+          <Label className="block text-left" htmlFor="password">
+            Password
+          </Label>
+          {error && <ErrorOutput message={error} />}
+          <div className="relative">
+            <Input
+              id="password"
+              ref={passwordRef}
+              placeholder={"Enter the password for the message"}
+              type="password"
+              name="password"
+              className="pr-9"
+              required
+            />
+            <PasswordVisibilityButton passwordRef={passwordRef} />
+          </div>
+        </div>
+        {/* <PasswordInput placeholderText="Enter the password for the message" /> */}
         <Button disabled={state === "submitting"} className="w-full">
           {state === "submitting" ? (
             <>

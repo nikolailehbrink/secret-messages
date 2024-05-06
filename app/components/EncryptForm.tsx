@@ -2,13 +2,14 @@ import { Form, useNavigation } from "@remix-run/react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import PasswordInput from "./PasswordInput";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { FlattenedErrors } from "@/routes/_index";
 import ErrorOutput from "@/components/ErrorOutput";
+import { Input } from "./ui/input";
+import PasswordVisibilityButton from "./PasswordVisibilityButton";
 
 export default function EncryptForm({
   errors,
@@ -17,6 +18,8 @@ export default function EncryptForm({
 }) {
   const { state } = useNavigation();
   const [charCount, setCharCount] = useState(0);
+  const passwordRef = useRef<HTMLInputElement>(null!);
+
   const passwordErrors = errors?.fieldErrors.password;
   const messageErrors = errors?.fieldErrors.message;
 
@@ -66,7 +69,25 @@ export default function EncryptForm({
           onChange={(e) => setCharCount(e.target.value.length)}
         />
       </div>
-      <PasswordInput />
+      <div className="relative space-y-2">
+        <Label className="block text-left" htmlFor="password">
+          Password
+        </Label>
+        <div className="relative">
+          <Input
+            id="password"
+            ref={passwordRef}
+            placeholder={"Enter a password to protect your message"}
+            type="password"
+            name="password"
+            className="pr-9"
+            minLength={4}
+            required
+          />
+          <PasswordVisibilityButton passwordRef={passwordRef} />
+        </div>
+      </div>
+      {/* <PasswordInput /> */}
       {passwordErrors &&
         passwordErrors.map((error, index) => (
           <ErrorOutput key={index} message={error} />
