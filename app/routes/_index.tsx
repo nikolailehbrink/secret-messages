@@ -143,18 +143,6 @@ export default function Index() {
             )}
           </Await>
         </Suspense>
-        <GradientContainer className="mt-4 inline-flex" rotate>
-          <div className="rounded-md bg-white/40 backdrop-blur-md">
-            <p
-              className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
-                to-fuchsia-500 bg-clip-text p-1 px-2 text-sm text-black/40
-                backdrop-blur-md"
-            >
-              <span className="font-bold">{messageCount}</span> secret{" "}
-              {messageCount === 1 ? "message" : "messages"} already created.
-            </p>
-          </div>
-        </GradientContainer>
       </div>
       <div className="w-full max-w-md">
         <EncryptForm errors={formErrors} />
