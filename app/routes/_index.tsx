@@ -1,6 +1,12 @@
 import EncryptForm from "@/components/EncryptForm";
 import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json, redirect, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Await,
+  json,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "@remix-run/react";
 import { getMessageCount, storeMessage } from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
@@ -10,6 +16,7 @@ import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
+import { Suspense } from "react";
 
 const description =
   "Share confidential messages securely with anyone. Generate unique links and passwords for exclusive access to your private information.";
@@ -29,6 +36,8 @@ const schema = z.object({
     .min(2, "The message needs at least two characters.")
     .max(500, "The message can't be longer than 500 characters."),
   password: z.string().min(4, "The password needs at least four characters."),
+  // oneTimeMessage: z.union([z.literal("on"), z.literal(null)]),
+  oneTimeMessage: z.literal("on").nullable(),
 });
 
 export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
@@ -58,10 +67,18 @@ export async function loader() {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+
   const message = String(formData.get("message"));
   const password = String(formData.get("password"));
+  const oneTimeMessage = formData.get("one-time-message");
 
-  const { error, data } = schema.safeParse({ message, password });
+  console.log(typeof oneTimeMessage, oneTimeMessage, null, "null");
+
+  const { error, data } = schema.safeParse({
+    message,
+    password,
+    oneTimeMessage,
+  });
 
   if (error) {
     return json(
@@ -107,6 +124,25 @@ export default function Index() {
         >
           {description}
         </p>
+        <Suspense fallback={"Loading..."}>
+          <Await resolve={messageCount}>
+            {(messageCount) => (
+              <GradientContainer className="mt-4 inline-flex" rotate>
+                <div className="rounded-md bg-white/40 backdrop-blur-md">
+                  <p
+                    className="rounded-md bg-gradient-to-br from-rose-500
+                      via-sky-500 to-fuchsia-500 bg-clip-text p-1 px-2 text-sm
+                      text-black/40 backdrop-blur-md"
+                  >
+                    <span className="font-bold">{messageCount}</span> secret{" "}
+                    {messageCount === 1 ? "message" : "messages"} already
+                    created.
+                  </p>
+                </div>
+              </GradientContainer>
+            )}
+          </Await>
+        </Suspense>
         <GradientContainer className="mt-4 inline-flex" rotate>
           <div className="rounded-md bg-white/40 backdrop-blur-md">
             <p

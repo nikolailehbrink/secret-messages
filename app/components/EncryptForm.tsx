@@ -10,6 +10,7 @@ import { FlattenedErrors } from "@/routes/_index";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Input } from "./ui/input";
 import PasswordVisibilityButton from "./PasswordVisibilityButton";
+import { Checkbox } from "./ui/checkbox";
 
 export default function EncryptForm({
   errors,
@@ -27,8 +28,8 @@ export default function EncryptForm({
     <Form
       id="form"
       method="post"
-      className="flex flex-col gap-4 rounded-lg bg-white/40 p-4 shadow-md ring-2
-        ring-neutral-50 backdrop-blur-md"
+      className="flex flex-col gap-4 rounded-lg bg-white/40 p-4 text-left
+        shadow-md ring-2 ring-neutral-50 backdrop-blur-md"
     >
       <div className="space-y-2">
         <div
@@ -37,7 +38,7 @@ export default function EncryptForm({
             charCount > 0 && "justify-between",
           )}
         >
-          <Label className="block text-left leading-tight" htmlFor="message">
+          <Label className="block leading-tight" htmlFor="message">
             Your Message{" "}
           </Label>
           {charCount > 0 ? (
@@ -69,8 +70,22 @@ export default function EncryptForm({
           onChange={(e) => setCharCount(e.target.value.length)}
         />
       </div>
+      <div className="items-top flex space-x-2">
+        <Checkbox id="one-time-message" name="one-time-message" />
+        <div className="grid gap-0.5 leading-none">
+          <Label
+            htmlFor="one-time-message"
+            className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            One Time Message
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            Once the message is viewed, it will be deleted.
+          </p>
+        </div>
+      </div>
       <div className="relative space-y-2">
-        <Label className="block text-left" htmlFor="password">
+        <Label className="block" htmlFor="password">
           Password
         </Label>
         <div className="relative">
@@ -87,6 +102,7 @@ export default function EncryptForm({
           <PasswordVisibilityButton passwordRef={passwordRef} />
         </div>
       </div>
+
       {/* <PasswordInput /> */}
       {passwordErrors &&
         passwordErrors.map((error, index) => (
