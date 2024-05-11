@@ -96,6 +96,7 @@ export default function EncryptForm({
             type="password"
             name="password"
             className="pr-9"
+            autoComplete="off"
             minLength={4}
             required
           />
