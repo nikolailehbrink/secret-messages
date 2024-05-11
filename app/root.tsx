@@ -34,13 +34,13 @@ export const meta: MetaFunction = ({ error }) => {
   const ogImagePath = "/og-image.jpg";
   const title = error
     ? isRouteErrorResponse(error) && error.status === 404
-      ? error.statusText + " - secretmessag.es"
-      : `An error occured! - secretmessag.es`
-    : "Share confidential messages - secretmessag.es";
+      ? error.statusText
+      : `An error occured`
+    : "Share confidential messages";
 
   return [
     {
-      title,
+      title: title + " - secretmessag.es",
     },
     { property: "og:title", content: title },
     {

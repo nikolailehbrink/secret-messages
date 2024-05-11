@@ -9,17 +9,18 @@ import { getMessage, markMessageAsViewed } from "prisma/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
+import ErrorOutput from "@/components/ErrorOutput";
+import usePageUrl from "@/hooks/usePageUrl";
+import GradientContainer from "@/components/GradientContainer";
+
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
-import ErrorOutput from "@/components/ErrorOutput";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
 import { NumberCircleOne } from "@phosphor-icons/react/dist/ssr/NumberCircleOne";
 import { ClockCountdown } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
-import usePageUrl from "@/hooks/usePageUrl";
-import GradientContainer from "@/components/GradientContainer";
 import { useRef, useState } from "react";
 import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
 import { Label } from "@/components/ui/label";
@@ -32,13 +33,21 @@ export const meta: MetaFunction = ({ matches }) => {
     .flatMap((match) => match.meta ?? [])
     .filter((meta) => !("title" in meta));
 
-  const description =
-    "A secret message is waiting for you. Decrypt it with the password.";
+  const description = "Access it now using the corresponding password.";
+  const title = "You got a secret message!";
 
   return [
     ...parentMeta,
     {
-      title: "You got a message! - secretmessag.es",
+      title: title + " - secretmessag.es",
+    },
+    {
+      property: "og:title",
+      content: title,
+    },
+    {
+      name: "twitter:title",
+      content: title,
     },
     {
       name: "description",
