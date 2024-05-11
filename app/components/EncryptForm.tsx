@@ -122,7 +122,7 @@ export default function EncryptForm({
           >
             One Time Message
           </Label>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Once the message is viewed, it will be deleted.
           </p>
         </div>
@@ -146,8 +146,6 @@ export default function EncryptForm({
           <PasswordVisibilityButton passwordRef={passwordRef} />
         </div>
       </div>
-
-      {/* <PasswordInput /> */}
       {passwordErrors &&
         passwordErrors.map((error, index) => (
           <ErrorOutput key={index} message={error} />
