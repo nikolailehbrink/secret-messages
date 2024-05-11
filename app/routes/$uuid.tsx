@@ -4,8 +4,8 @@ import {
   MetaFunction,
   json,
 } from "@vercel/remix";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { getMessage } from "prisma/message";
+import { Link, ShouldRevalidateFunction, useFetcher } from "@remix-run/react";
+import { getMessage, markMessageAsViewed } from "prisma/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";

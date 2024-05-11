@@ -1,17 +1,36 @@
 import { PrismaClient } from "@prisma/client";
 import { encryptText } from "@/lib/crypto";
 import short from "short-uuid";
+import { addMinutesToDate } from "@/lib/helper";
 
 const prisma = new PrismaClient();
 
-export async function storeMessage(message: string, password: string) {
-  const { iv, encryptedMessage } = encryptText(message, password);
+export async function storeMessage(
+  content: string,
+  oneTimeMessage: boolean,
+  minutesToExpire: number | null,
+  password: string,
+) {
+  let expirationDate: string | null = null;
+  const { iv, encryptedMessage } = encryptText(content, password);
+  const createdAt = new Date();
+
+  if (minutesToExpire) {
+    expirationDate = addMinutesToDate(createdAt, minutesToExpire).toISOString();
+  }
 
   return prisma.message.create({
     data: {
       encryptedContent: encryptedMessage,
       uuid: short.generate(),
       iv,
+      expiresAt: expirationDate,
+      createdAt,
+      isOneTimeMessage: oneTimeMessage,
+    },
+  });
+}
+
     },
   });
 }
