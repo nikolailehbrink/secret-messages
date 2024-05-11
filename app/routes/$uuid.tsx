@@ -33,7 +33,7 @@ export const meta: MetaFunction = ({ matches }) => {
     .flatMap((match) => match.meta ?? [])
     .filter((meta) => !("title" in meta));
 
-  const description = "Access it now using the corresponding password.";
+  const description = "Access it now using the separate send password.";
   const title = "You got a secret message!";
 
   return [
