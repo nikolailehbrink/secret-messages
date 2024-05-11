@@ -12,9 +12,12 @@ datasource db {
 }
 
 model Message {
-  id    Int     @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
   encryptedContent String
   iv String @unique
-  createdAt DateTime @default(now())
   uuid String @unique
+  isOneTimeMessage Boolean @default(false)
+  expiresAt DateTime?
+  isDecrypted Boolean @default(false)
 }
