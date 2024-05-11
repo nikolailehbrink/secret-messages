@@ -31,6 +31,13 @@ export async function storeMessage(
   });
 }
 
+export async function markMessageAsViewed(uuid: string) {
+  return prisma.message.update({
+    where: {
+      uuid,
+    },
+    data: {
+      isDecrypted: true,
     },
   });
 }

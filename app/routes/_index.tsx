@@ -30,16 +30,6 @@ export const meta: MetaFunction = ({ matches }) => {
   ];
 };
 
-const schema = z.object({
-  message: z
-    .string()
-    .min(2, "The message needs at least two characters.")
-    .max(500, "The message can't be longer than 500 characters."),
-  password: z.string().min(4, "The password needs at least four characters."),
-  // oneTimeMessage: z.union([z.literal("on"), z.literal(null)]),
-  oneTimeMessage: z.literal("on").nullable(),
-});
-
 export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 const features = [
@@ -65,19 +55,38 @@ export async function loader() {
   return json({ messageCount });
 }
 
+const schema = z.object({
+  message: z
+    .string()
+    .min(2, "The message needs at least two characters.")
+    .max(500, "The message can't be longer than 500 characters."),
+  oneTimeMessage: z.literal("on").nullable(),
+  expirationTime: z.enum([
+    "1",
+    "15",
+    "60",
+    "720",
+    "4320",
+    "10080",
+    "40320",
+    "",
+  ]),
+  password: z.string().min(4, "The password needs at least four characters."),
+});
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const message = String(formData.get("message"));
-  const password = String(formData.get("password"));
+  const message = formData.get("message");
   const oneTimeMessage = formData.get("one-time-message");
-
-  console.log(typeof oneTimeMessage, oneTimeMessage, null, "null");
+  const expirationTime = formData.get("expiration-time");
+  const password = formData.get("password");
 
   const { error, data } = schema.safeParse({
     message,
-    password,
     oneTimeMessage,
+    expirationTime,
+    password,
   });
 
   if (error) {
@@ -87,7 +96,12 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
   try {
-    const { uuid } = await storeMessage(data.message, data.password);
+    const { uuid } = await storeMessage(
+      data.message,
+      data.oneTimeMessage === "on",
+      parseInt(data.expirationTime) || null,
+      data.password,
+    );
     return redirect(`/${uuid}`);
   } catch (error) {
     if (

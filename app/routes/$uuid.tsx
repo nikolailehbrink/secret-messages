@@ -16,13 +16,16 @@ import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
 import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
-
+import { NumberCircleOne } from "@phosphor-icons/react/dist/ssr/NumberCircleOne";
+import { ClockCountdown } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
 import usePageUrl from "@/hooks/usePageUrl";
 import GradientContainer from "@/components/GradientContainer";
 import { useRef, useState } from "react";
 import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { dateTime } from "@/lib/helper";
+import { messageNotFoundResponse } from "@/lib/response";
 
 export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches
@@ -57,44 +60,78 @@ export async function loader({ params }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
 
   const message = await getMessage(params.uuid);
-  if (!message) {
-    throw new Response(
-      `The message you are looking for does not exist. Please check the URL and try again.`,
-      {
-        status: 404,
-        statusText: "Message not found!",
-      },
-    );
+  const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
+  const isOneTimeMessageAndViewed =
+    message?.isOneTimeMessage && message?.isDecrypted;
+
+  if (!message || isMessageExpired || isOneTimeMessageAndViewed) {
+    throw messageNotFoundResponse();
   }
-  const { createdAt } = message;
-  return json({ createdAt });
+
+  return null;
 }
+
+// This function prevents Remix from calling the loader after a message has been successfully decrypted and thus the action was triggered.
+// The default behavior of Remix is to revalidate the loader after the action has been called.
+// That would lead to the messageNotFoundResponse to be thrown for one-time-messages because the message has been marked as viewed in the action and should not be viewable as stated in the if conditional in the loader.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  actionResult,
+  defaultShouldRevalidate,
+}) => {
+  // Only revalidate if the action did not successfully retrieve and display the message
+  if (actionResult?.decryptedMessage) {
+    return false;
+  }
+  return defaultShouldRevalidate;
+};
 
 export async function action({ request, params }: ActionFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
 
-  const message = await getMessage(params.uuid);
-
   const password = (await request.formData()).get("password");
 
-  if (!password || !message) {
-    throw new Response("No password or message provided", { status: 404 });
+  if (!password || typeof password !== "string") {
+    return json({
+      decryptedMessage: null,
+      createdAt: null,
+      isOneTimeMessage: null,
+      expiresAt: null,
+      error: "Provide a password.",
+    });
   }
 
-  const { encryptedContent, iv } = message;
-  try {
-    const decryptedMessage = decryptText(
-      encryptedContent,
-      iv,
-      password.toString(),
-    );
-    if (!decryptedMessage) throw new Error("Failed to decrypt");
+  const message = await getMessage(params.uuid);
 
-    return json({ decryptedMessage, error: null });
+  if (!message) {
+    throw messageNotFoundResponse();
+  }
+
+  const { encryptedContent, iv, createdAt, isOneTimeMessage, expiresAt } =
+    message;
+
+  try {
+    const decryptedMessage = decryptText(encryptedContent, iv, password);
+    if (!decryptedMessage) throw new Error("Failed to decrypt message.");
+
+    await markMessageAsViewed(params.uuid);
+
+    return json({
+      decryptedMessage,
+      expiresAt,
+      createdAt,
+      isOneTimeMessage,
+      error: null,
+    });
   } catch (error) {
     console.log(error);
     // https://github.com/remix-run/remix/discussions/8616
-    return json({ decryptedMessage: null, error: "Incorrect password" });
+    return json({
+      decryptedMessage: null,
+      createdAt: null,
+      isOneTimeMessage: null,
+      expiresAt: null,
+      error: "Incorrect password.",
+    });
   }
 }
 
@@ -102,14 +139,17 @@ export default function $uuid() {
   const fetcher = useFetcher<typeof action>();
   const passwordRef = useRef<HTMLInputElement>(null!);
 
-  const { createdAt } = useLoaderData<typeof loader>();
   const { data, state } = fetcher;
-  const decryptedMessage = data?.decryptedMessage;
-  const creationDate = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "full",
-    timeStyle: "short",
-  }).format(new Date(createdAt));
+
+  const submitting = state === "submitting";
+
   const error = data?.error;
+  const decryptedMessage = data?.decryptedMessage;
+  const creationDate =
+    data?.createdAt && dateTime.format(new Date(data.createdAt));
+  const expirationDate =
+    data?.expiresAt && dateTime.format(new Date(data.expiresAt));
+
   const [copyToClipboardIcon, setCopyToClipboardIcon] = useState({
     icon: Clipboard,
   });
@@ -145,9 +185,8 @@ export default function $uuid() {
             <PasswordVisibilityButton passwordRef={passwordRef} />
           </div>
         </div>
-        {/* <PasswordInput placeholderText="Enter the password for the message" /> */}
-        <Button disabled={state === "submitting"} className="w-full">
-          {state === "submitting" ? (
+        <Button disabled={submitting} className="w-full">
+          {submitting ? (
             <>
               <CircleNotch className="animate-spin" size={20} />
               Decrypt message...
@@ -215,6 +254,26 @@ export default function $uuid() {
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">
+      {data?.isOneTimeMessage && (
+        <div className="flex items-center gap-1 text-rose-500">
+          <NumberCircleOne className="shrink-0" weight="duotone" size={20} />
+
+          <p className="text-pretty text-xs">
+            <span className="font-bold">One-Time Message:</span> This message
+            will become unavailable after closing or refreshing the tab.
+          </p>
+        </div>
+      )}
+      {!data?.isOneTimeMessage && expirationDate && (
+        <div className="flex items-center gap-1 text-sky-500">
+          <ClockCountdown className="shrink-0" size={20} weight="duotone" />
+
+          <p className="text-pretty text-xs">
+            <span className="font-bold">Expiring message:</span> This message
+            will be available until {expirationDate}.
+          </p>
+        </div>
+      )}
       <p
         className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
           backdrop-blur-xl"
