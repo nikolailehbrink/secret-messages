@@ -1,12 +1,7 @@
 import EncryptForm from "@/components/EncryptForm";
 import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import {
-  Await,
-  json,
-  redirect,
-  useActionData,
-  useLoaderData,
-} from "@remix-run/react";
+import { json, redirect, defer } from "@vercel/remix";
+import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { getMessageCount, storeMessage } from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
@@ -49,11 +44,6 @@ const features = [
     icon: LinkSimple,
   },
 ];
-
-export async function loader() {
-  const messageCount = await getMessageCount();
-  return json({ messageCount });
-}
 
 const schema = z.object({
   message: z
@@ -104,6 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
     return redirect(`/${uuid}`);
   } catch (error) {
+    // Handle unique constraint error
     if (
       error instanceof PrismaClientKnownRequestError &&
       error.code === "P2002"
@@ -114,6 +105,11 @@ export async function action({ request }: ActionFunctionArgs) {
         formErrors: null,
       });
   }
+}
+
+export async function loader() {
+  const messageCount = getMessageCount();
+  return defer({ messageCount });
 }
 
 export default function Index() {
@@ -138,25 +134,27 @@ export default function Index() {
         >
           {description}
         </p>
-        <Suspense fallback={"Loading..."}>
-          <Await resolve={messageCount}>
-            {(messageCount) => (
-              <GradientContainer className="mt-4 inline-flex" rotate>
-                <div className="rounded-md bg-white/40 backdrop-blur-md">
-                  <p
-                    className="rounded-md bg-gradient-to-br from-rose-500
-                      via-sky-500 to-fuchsia-500 bg-clip-text p-1 px-2 text-sm
-                      text-black/40 backdrop-blur-md"
-                  >
-                    <span className="font-bold">{messageCount}</span> secret{" "}
-                    {messageCount === 1 ? "message" : "messages"} already
-                    created.
-                  </p>
-                </div>
-              </GradientContainer>
-            )}
-          </Await>
-        </Suspense>
+        <GradientContainer className="mt-4 inline-flex" rotate>
+          <div className="rounded-md bg-white/40 backdrop-blur-md">
+            <p
+              className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
+                to-fuchsia-500 bg-clip-text p-1 px-2 text-sm text-black/40
+                backdrop-blur-md"
+            >
+              <Suspense fallback={<span>Wait a second...</span>}>
+                <Await resolve={messageCount}>
+                  {(messageCount) => (
+                    <>
+                      <span className="font-bold">{messageCount}</span> secret{" "}
+                      {messageCount === 1 ? "message" : "messages"} already
+                      created.
+                    </>
+                  )}
+                </Await>
+              </Suspense>
+            </p>
+          </div>
+        </GradientContainer>
       </div>
       <div className="w-full max-w-md">
         <EncryptForm errors={formErrors} />
