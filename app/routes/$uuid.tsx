@@ -265,21 +265,22 @@ export default function $uuid() {
     <div className="container h-full max-w-xl space-y-2 self-center">
       {data?.isOneTimeMessage && (
         <div className="flex items-center gap-1 text-rose-500">
-          <NumberCircleOne className="shrink-0" weight="duotone" size={20} />
+          <NumberCircleOne className="shrink-0" weight="duotone" size={28} />
 
           <p className="text-pretty text-xs">
-            <span className="font-bold">One-Time Message:</span> This message
-            will become unavailable after closing or refreshing the tab.
+            <span className="text-sm font-bold">One-Time Message:</span> <br />
+            This message will become unavailable after closing or refreshing the
+            tab.
           </p>
         </div>
       )}
       {!data?.isOneTimeMessage && expirationDate && (
         <div className="flex items-center gap-1 text-sky-500">
-          <ClockCountdown className="shrink-0" size={20} weight="duotone" />
+          <ClockCountdown className="shrink-0" size={28} weight="duotone" />
 
           <p className="text-pretty text-xs">
-            <span className="font-bold">Expiring message:</span> This message
-            will be available until {expirationDate}.
+            <span className="text-sm font-bold">Expiring message:</span>
+            <br /> This message will be available until {expirationDate}.
           </p>
         </div>
       )}
