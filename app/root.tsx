@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
   Link,
   Links,
@@ -93,6 +94,7 @@ export function ErrorBoundary() {
   const pageUrl = usePageUrl();
   const error = useRouteError();
   const notFound = isRouteErrorResponse(error) && error;
+  captureRemixErrorBoundaryError(error);
   return (
     <div
       className="container flex flex-col items-center justify-center gap-2
@@ -130,6 +132,8 @@ export function ErrorBoundary() {
   );
 }
 
-export default function App() {
+function App() {
   return <Outlet />;
 }
+
+export default withSentry(App);
