@@ -3,7 +3,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { ArrowCounterClockwise } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise";
+import { Backspace } from "@phosphor-icons/react/dist/ssr/Backspace";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -107,7 +107,7 @@ export default function EncryptForm({
                 size={"icon"}
                 onClick={() => setValue("")}
               >
-                <ArrowCounterClockwise size={20} weight="duotone" />
+                <Backspace size={20} weight="duotone" />
               </Button>
             )}
           </div>
