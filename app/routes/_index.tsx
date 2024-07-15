@@ -20,6 +20,10 @@ export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches.flatMap((match) => match.meta ?? []);
   return [
     ...parentMeta,
+    {
+      name: "description",
+      content: "This app is the best",
+    },
     { property: "og:description", content: description },
     { name: "twitter:description", content: description },
   ];
