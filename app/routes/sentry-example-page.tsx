@@ -7,7 +7,7 @@ export function action() {
 export default function SentryExamplePage() {
   return (
     <div>
-      <Form action="POST">
+      <Form method="POST">
         <button>Hallo</button>
       </Form>
       <main
