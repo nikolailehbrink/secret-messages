@@ -14,7 +14,7 @@ import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 
 const description =
-  "Share confidential messages securely with anyone. Generate unique links and passwords for exclusive access to your private information.";
+  "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
 
 export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches.flatMap((match) => match.meta ?? []);
@@ -22,7 +22,7 @@ export const meta: MetaFunction = ({ matches }) => {
     ...parentMeta,
     {
       name: "description",
-      content: "This app is the best",
+      content: description,
     },
     { property: "og:description", content: description },
     { name: "twitter:description", content: description },
