@@ -5,7 +5,7 @@ import {
   json,
 } from "@vercel/remix";
 import { Link, ShouldRevalidateFunction, useFetcher } from "@remix-run/react";
-import { getMessage, markMessageAsViewed } from "prisma/message";
+import { deleteMessage, getMessage, markMessageAsViewed } from "prisma/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
   const isOneTimeMessageAndViewed =
     message?.isOneTimeMessage && message?.isDecrypted;
+
+  if (isMessageExpired || isOneTimeMessageAndViewed) {
+    try {
+      await deleteMessage(params.uuid);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   if (!message || isMessageExpired || isOneTimeMessageAndViewed) {
     throw messageNotFoundResponse();
