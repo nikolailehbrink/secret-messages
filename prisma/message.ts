@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { encryptText } from "@/lib/crypto";
 import short from "short-uuid";
-import { addMinutesToDate } from "@/lib/helper";
+import { DateTime } from "luxon";
 
 const prisma = new PrismaClient();
 
@@ -16,10 +16,11 @@ export async function storeMessage(
 ) {
   let expirationDate: string | null = null;
   const { iv, encryptedMessage } = encryptText(content, password);
-  const createdAt = new Date();
+  const createdDate = DateTime.now();
+  const createdAt = createdDate.toJSDate();
 
   if (minutesToExpire) {
-    expirationDate = addMinutesToDate(createdAt, minutesToExpire).toISOString();
+    expirationDate = createdDate.plus({ minutes: minutesToExpire }).toISO();
   }
 
   return prisma.message.create({
