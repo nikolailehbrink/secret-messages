@@ -21,3 +21,9 @@ model Message {
   expiresAt DateTime?
   isDecrypted Boolean @default(false)
 }
+
+model MessageCounter {
+  id Int @id @default(autoincrement())
+  count Int @default(0)
+  type String @unique
+}
