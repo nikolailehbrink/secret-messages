@@ -2,7 +2,11 @@ import EncryptForm from "@/components/EncryptForm";
 import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
 import { json, redirect, defer } from "@vercel/remix";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
-import { getMessageCount, storeMessage } from "prisma/message";
+import {
+  getMessageCount,
+  incrementMessageCount,
+  storeMessage,
+} from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
@@ -89,13 +93,22 @@ export async function action({ request }: ActionFunctionArgs) {
       { status: 400 },
     );
   }
+  const isOneTimeMessage = data.oneTimeMessage === "on";
+  const isExpiringMessage = data.expirationTime !== "";
+  const isStandardMessage = !isOneTimeMessage && !isExpiringMessage;
   try {
     const { uuid } = await storeMessage(
       data.message,
-      data.oneTimeMessage === "on",
+      isOneTimeMessage,
       parseInt(data.expirationTime) || null,
       data.password,
     );
+    await Promise.all([
+      isOneTimeMessage && incrementMessageCount("oneTime"),
+      isExpiringMessage && incrementMessageCount("expiring"),
+      isStandardMessage && incrementMessageCount("standard"),
+      incrementMessageCount("all"),
+    ]);
     return redirect(`/${uuid}`);
   } catch (error) {
     // Handle unique constraint error
@@ -112,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader() {
-  const messageCount = getMessageCount();
+  const messageCount = getMessageCount("all");
   return defer({ messageCount });
 }
 

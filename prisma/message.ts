@@ -5,9 +5,12 @@ import { addMinutesToDate } from "@/lib/helper";
 
 const prisma = new PrismaClient();
 
+// "all" is used to count all messages, because a message can be one-time and expiring at the same time and we want to count it only once for the output but still have the message appear in both counters for oneTime and expiring messages.
+type MessageType = "oneTime" | "expiring" | "standard" | "all";
+
 export async function storeMessage(
   content: string,
-  oneTimeMessage: boolean,
+  isOneTimeMessage: boolean,
   minutesToExpire: number | null,
   password: string,
 ) {
@@ -26,7 +29,7 @@ export async function storeMessage(
       iv,
       expiresAt: expirationDate,
       createdAt,
-      isOneTimeMessage: oneTimeMessage,
+      isOneTimeMessage,
     },
   });
 }
@@ -54,6 +57,24 @@ export async function getMessages() {
   return prisma.message.findMany();
 }
 
-export async function getMessageCount() {
-  return prisma.message.count();
+export async function getMessageCount(messageType: MessageType) {
+  const counter = await prisma.messageCounter.findUnique({
+    where: {
+      type: messageType,
+    },
+  });
+  return counter?.count ?? 0;
+}
+export async function incrementMessageCount(messageType: MessageType) {
+  return prisma.messageCounter.upsert({
+    where: {
+      type: messageType,
+    },
+    create: { count: 1, type: messageType },
+    update: {
+      count: {
+        increment: 1,
+      },
+    },
+  });
 }
