@@ -66,7 +66,7 @@ export const meta: MetaFunction = ({ matches }) => {
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  invariant(params.uuid, "No uuid provided");
+  invariant(params.uuid, "No uuid provided.");
 
   const message = await getMessage(params.uuid);
   const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
