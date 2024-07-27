@@ -8,6 +8,7 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev --host",
     "dev:db": "docker-compose up",
+    "format": "prettier --write .",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "NODE_OPTIONS='--import ./instrumentation.server.mjs' remix-serve ./build/server/index.js",
     "typecheck": "tsc"
