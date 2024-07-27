@@ -9,14 +9,18 @@ import { vercelPreset } from "@vercel/remix/vite";
 installGlobals();
 
 export default defineConfig({
-  plugins: [remix({
-    presets: [vercelPreset()],
-  }), tsconfigPaths(), sentryVitePlugin({
-    org: "nikolailehbrink",
-    project: "secretmessages"
-  })],
+  plugins: [
+    remix({
+      presets: [vercelPreset()],
+    }),
+    tsconfigPaths(),
+    sentryVitePlugin({
+      org: "nikolailehbrink",
+      project: "secretmessages",
+    }),
+  ],
 
   build: {
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
 });
