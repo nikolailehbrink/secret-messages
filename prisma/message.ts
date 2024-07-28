@@ -51,6 +51,24 @@ export async function deleteMessage(uuid: string) {
   });
 }
 
+export async function deleteExpiredOrOneTimeMessages() {
+  return prisma.message.deleteMany({
+    where: {
+      OR: [
+        {
+          isOneTimeMessage: true,
+          isDecrypted: true,
+        },
+        {
+          expiresAt: {
+            lte: new Date(),
+          },
+        },
+      ],
+    },
+  });
+}
+
 export async function markMessageAsViewed(uuid: string) {
   return prisma.message.update({
     where: {
