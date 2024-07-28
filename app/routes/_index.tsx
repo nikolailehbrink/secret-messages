@@ -5,7 +5,7 @@ import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import {
   getMessageCount,
   incrementMessageCount,
-  storeMessage,
+  createMessage,
 } from "prisma/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
@@ -97,7 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const isExpiringMessage = data.expirationTime !== "";
   const isStandardMessage = !isOneTimeMessage && !isExpiringMessage;
   try {
-    const { uuid } = await storeMessage(
+    const { uuid } = await createMessage(
       data.message,
       isOneTimeMessage,
       parseInt(data.expirationTime) || null,
