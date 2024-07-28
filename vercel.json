@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/delete-messages",
-      "schedule": "*/1 * * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }
