@@ -28,10 +28,12 @@ export const links: LinksFunction = () => [
 ];
 
 export const meta: MetaFunction = ({ error }) => {
-  const origin =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:5173"
-      : "https://www.secretmessag.es";
+  const origin = !import.meta.env.DEV
+    ? process.env.VERCEL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"
+    : "http://localhost:5173";
+
   const ogImagePath = "/og-image.jpg";
   const title = error
     ? isRouteErrorResponse(error) && error.status === 404
