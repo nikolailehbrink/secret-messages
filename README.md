@@ -1,16 +1,43 @@
-# Welcome to ReTail!
+# Secret Messages
 
-This template is a starting point for building a [Remix](https://remix.run) app with [Vite](https://vitejs.dev) and [Tailwind CSS](https://tailwindcss.com) and was built on top of `npx create-remix@latest` found on [https://remix.run/docs/en/main/guides/vite](https://remix.run/docs/en/main/guides/vite).
+This app allows users to send and receive encrypted messages securely. One-Time-Messages as well as expiring messages are supported.
 
-📖 See the [Remix docs](https://remix.run/docs), the [Remix Vite docs](https://remix.run/docs/en/main/future/vite) and the [Tailwind CSS docs](https://tailwindcss.com/docs/installation) for details on supported features.
+<a href="https://www.secretmessag.es">
+  <img alt="Secret Messages" src="https://www.secretmessag.es/og-image.jpg">
+</a>
 
-This template enables automatic wrapping for long class names and class sorting with [`prettier-plugin-classnames`](https://www.npmjs.com/package/prettier-plugin-classnames) and [`prettier-plugin-tailwindcss`](https://tailwindcss.com/blog/automatic-class-sorting-with-prettier).
+## ✨ Features
+
+- **Modern Technologies**: Built with [Remix](https://remix.run), [Vite](https://vitejs.dev), and [Tailwind CSS](https://tailwindcss.com).
+- **Database Integration**: Utilizes [Prisma](https://www.prisma.io/) for database management.
+- **SEO**: Optimized for search engines and social sharing.
+- **Accessibility**: Build on top of [Radix UI](https://radix-ui.com/), [shadcn/ui](https://ui.shadcn.com/docs) and [v0.dev](https://v0.dev/r/Teb11BcSsgw) for accessible, modern and inclusive design.
+
+## 🤗 Room for improvement
+
+If you noticed a bug or something that could be improved, I welcome you to [file an issue](https://github.com/your-repo/secret-messages/issues/new) or [open a pull request](https://github.com/your-repo/secret-messages/compare) to contribute to the project.
 
 ## Development
 
-Run the Vite dev server:
+Prerequisites:
 
-```shellscript
+- Docker
+
+First, install the dependencies:
+
+```sh
+npm install
+```
+
+Then, start the database:
+
+```sh
+npm run dev:db
+```
+
+Run the Vite dev server in a different terminal:
+
+```sh
 npm run dev
 ```
 
@@ -22,19 +49,16 @@ First, build your app for production:
 npm run build
 ```
 
-Then run the app in production mode:
+To preview the built app, run:
+
+```sh
+npm run preview
+```
+
+To run the app in production mode:
 
 ```sh
 npm start
 ```
 
 Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
