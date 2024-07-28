@@ -2,13 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  await prisma.message.updateMany({
-    data: {
-      isDecrypted: false,
-    },
-  });
-}
+async function main() {}
 
 main()
   .catch((e) => {
