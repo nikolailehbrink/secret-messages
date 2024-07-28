@@ -1,5 +1,5 @@
 {
-  "name": "retail",
+  "name": "secret-messages",
   "private": true,
   "sideEffects": false,
   "type": "module",
