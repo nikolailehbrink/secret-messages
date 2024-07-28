@@ -35,17 +35,6 @@ export async function createMessage(
   });
 }
 
-export async function markMessageAsViewed(uuid: string) {
-  return prisma.message.update({
-    where: {
-      uuid,
-    },
-    data: {
-      isDecrypted: true,
-    },
-  });
-}
-
 export async function getMessage(uuid: string) {
   return prisma.message.findUnique({
     where: {
@@ -62,6 +51,17 @@ export async function deleteMessage(uuid: string) {
   });
 }
 
+export async function markMessageAsViewed(uuid: string) {
+  return prisma.message.update({
+    where: {
+      uuid,
+    },
+    data: {
+      isDecrypted: true,
+    },
+  });
+}
+
 export async function getMessageCount(messageType: MessageType) {
   const counter = await prisma.messageCounter.findUnique({
     where: {
@@ -70,6 +70,7 @@ export async function getMessageCount(messageType: MessageType) {
   });
   return counter?.count ?? 0;
 }
+
 export async function incrementMessageCount(messageType: MessageType) {
   return prisma.messageCounter.upsert({
     where: {
