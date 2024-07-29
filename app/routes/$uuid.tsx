@@ -5,7 +5,11 @@ import {
   json,
 } from "@vercel/remix";
 import { Link, ShouldRevalidateFunction, useFetcher } from "@remix-run/react";
-import { deleteMessage, getMessage, markMessageAsViewed } from "prisma/message";
+import {
+  deleteMessage,
+  getMessage,
+  markMessageAsViewed,
+} from "@/.server/message";
 import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";

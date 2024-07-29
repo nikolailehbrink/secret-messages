@@ -6,7 +6,7 @@ import {
   getMessageCount,
   incrementMessageCount,
   createMessage,
-} from "prisma/message";
+} from "@/.server/message";
 import { z } from "zod";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";

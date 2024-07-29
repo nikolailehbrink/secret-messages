@@ -1,5 +1,5 @@
+import { deleteExpiredOrOneTimeMessages } from "@/.server/message";
 import { json } from "@vercel/remix";
-import { deleteExpiredOrOneTimeMessages } from "prisma/message";
 
 export async function loader() {
   try {
