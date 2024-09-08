@@ -4,7 +4,12 @@ import {
   MetaFunction,
   json,
 } from "@vercel/remix";
-import { Link, ShouldRevalidateFunction, useFetcher } from "@remix-run/react";
+import {
+  Link,
+  ShouldRevalidateFunction,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
 import {
   deleteMessage,
   getMessage,
@@ -14,7 +19,6 @@ import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
-import usePageUrl from "@/hooks/usePageUrl";
 import GradientContainer from "@/components/GradientContainer";
 
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
@@ -69,9 +73,8 @@ export const meta: MetaFunction = ({ matches }) => {
   ];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   invariant(params.uuid, "No uuid provided.");
-
   const message = await getMessage(params.uuid);
   const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
   const isOneTimeMessageAndViewed =
@@ -88,8 +91,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!message || isMessageExpired || isOneTimeMessageAndViewed) {
     throw messageNotFoundResponse();
   }
+  const url = request.url;
 
-  return null;
+  return json(url);
 }
 
 // This function prevents Remix from calling the loader after a message has been successfully decrypted and thus the action was triggered.
@@ -157,6 +161,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function $uuid() {
+  const url = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const passwordRef = useRef<HTMLInputElement>(null!);
 
@@ -174,8 +179,6 @@ export default function $uuid() {
   const [copyToClipboardIcon, setCopyToClipboardIcon] = useState({
     icon: Clipboard,
   });
-
-  const pageUrl = usePageUrl();
 
   return !decryptedMessage ? (
     <div
@@ -243,7 +246,7 @@ export default function $uuid() {
             className="relative flex h-full gap-2 rounded-md bg-white/50 p-1
               px-2 text-sm text-neutral-700 backdrop-blur-2xl"
           >
-            <p className="line-clamp-1 self-center">{pageUrl}</p>
+            <p className="line-clamp-1 self-center">{url}</p>
           </div>
         </GradientContainer>
         <GradientContainer className="inline-flex self-start">
@@ -255,7 +258,7 @@ export default function $uuid() {
             type="button"
             onClick={async () => {
               try {
-                await navigator.clipboard.writeText(pageUrl);
+                await navigator.clipboard.writeText(url);
                 setCopyToClipboardIcon({ icon: CheckCircle });
               } catch (error) {
                 setCopyToClipboardIcon({ icon: XCircle });
