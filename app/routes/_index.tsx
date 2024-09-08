@@ -72,9 +72,13 @@ const schema = z.object({
   password: z.string().min(4, "The password needs at least four characters."),
 });
 
+export async function loader() {
+  const messageCount = getMessageCount("all");
+  return defer({ messageCount });
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-
   const message = formData.get("message");
   const oneTimeMessage = formData.get("one-time-message");
   const expirationTime = formData.get("expiration-time");
@@ -122,11 +126,6 @@ export async function action({ request }: ActionFunctionArgs) {
         formErrors: null,
       });
   }
-}
-
-export async function loader() {
-  const messageCount = getMessageCount("all");
-  return defer({ messageCount });
 }
 
 export default function Index() {
