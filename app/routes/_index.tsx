@@ -8,14 +8,12 @@ import {
   createMessage,
 } from "@/.server/message";
 import { z } from "zod";
-import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
-import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
-import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
+import { FEATURES } from "@/constants/features";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
@@ -34,24 +32,6 @@ export const meta: MetaFunction = ({ matches }) => {
 };
 
 export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
-
-const features = [
-  {
-    title: "Anonymous",
-    description: "No IP addresses or personal information is stored.",
-    icon: Detective,
-  },
-  {
-    title: "Secure",
-    description: "Your message is encrypted and protected with a password.",
-    icon: LockKey,
-  },
-  {
-    title: "Shareable",
-    description: "Generate a unique link to share your message with others.",
-    icon: LinkSimple,
-  },
-];
 
 const schema = z.object({
   message: z
@@ -208,7 +188,7 @@ export default function Index() {
           className="mt-6 grid max-w-5xl auto-rows-fr grid-cols-1
             justify-items-center gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          {features.map(({ icon: Icon, title, description }, index) => {
+          {FEATURES.map(({ icon: Icon, title, description }, index) => {
             return (
               <GradientContainer
                 className="w-full max-w-md"

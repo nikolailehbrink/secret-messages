@@ -1,26 +1,6 @@
 import { Link } from "@remix-run/react";
-import { GithubLogo } from "@phosphor-icons/react/dist/ssr/GithubLogo";
-import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr/LinkedinLogo";
-import { XLogo } from "@phosphor-icons/react/dist/ssr/XLogo";
 import GradientContainer from "./GradientContainer";
-
-const socials = [
-  {
-    name: "Github",
-    url: "https://github.com/nikolailehbrink",
-    icon: GithubLogo,
-  },
-  {
-    name: "LinkedIn",
-    url: "https://www.linkedin.com/in/nikolailehbrink/",
-    icon: LinkedinLogo,
-  },
-  {
-    name: "X",
-    url: "https://twitter.com/nikolailehbrink",
-    icon: XLogo,
-  },
-];
+import { SOCIALS } from "@/constants/socials";
 
 export default function Footer() {
   return (
@@ -69,7 +49,7 @@ export default function Footer() {
                 rounded-md bg-white/50 p-1 px-2 text-neutral-700
                 backdrop-blur-2xl"
             >
-              {socials.map(({ name, url, icon: Icon }) => (
+              {SOCIALS.map(({ name, url, icon: Icon }) => (
                 <Link
                   key={name}
                   to={url}
