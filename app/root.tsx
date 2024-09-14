@@ -18,6 +18,8 @@ import {
 } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
+import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+
 import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
 import { ChatCircleDots } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
 
@@ -29,6 +31,13 @@ import { Button } from "./components/ui/button";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
+  {
+    rel: "preload",
+    as: "font",
+    href: interWoff2,
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  },
   { rel: "icon", type: "image/png", href: "/icon.png" },
 ];
 
