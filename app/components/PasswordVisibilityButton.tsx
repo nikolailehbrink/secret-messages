@@ -1,6 +1,5 @@
 import { Button } from "./ui/button";
-import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlash } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+import { Eye, EyeSlash } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 type Props = { passwordRef: React.RefObject<HTMLInputElement> };

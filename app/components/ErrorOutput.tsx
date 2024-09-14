@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Warning } from "@phosphor-icons/react/dist/ssr/Warning";
+import { Warning } from "@phosphor-icons/react";
 
 type Props = { message: string; className?: string };
 
