@@ -20,16 +20,15 @@ import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
 import GradientContainer from "@/components/GradientContainer";
-import {
-  CheckCircle,
-  CircleNotch,
-  Clipboard,
-  ClockCountdown,
-  LockKey,
-  LockKeyOpen,
-  NumberCircleOne,
-  XCircle,
-} from "@phosphor-icons/react";
+
+import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
+import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
+import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
+import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
+import { NumberCircleOne } from "@phosphor-icons/react/dist/ssr/NumberCircleOne";
+import { ClockCountdown } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
 import { useRef, useState } from "react";
 import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
 import { Label } from "@/components/ui/label";

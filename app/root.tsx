@@ -18,7 +18,9 @@ import {
 } from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
-import { EnvelopeSimpleOpen, ChatCircleDots } from "@phosphor-icons/react";
+import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
+import { ChatCircleDots } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
+
 import styles from "@/index.css?url";
 import Footer from "./components/Footer";
 import GradientHeading from "./components/GradientHeading";
