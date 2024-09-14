@@ -17,9 +17,11 @@ export default function Footer() {
           aria-label="Go to homepage"
         >
           <img
-            src="/logo.png"
+            width={32}
+            height={32}
+            src="/logo.webp"
             alt="Logo"
-            className="w-8 transition-transform duration-500
+            className="size-8 transition-transform duration-500
               group-hover:scale-110"
           />
           <div className="gap -mt-[2px] flex flex-col -space-y-1">
