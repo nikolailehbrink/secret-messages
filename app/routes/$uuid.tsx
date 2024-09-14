@@ -202,7 +202,7 @@ export default function $uuid() {
               placeholder={"Enter the password for the message"}
               type="password"
               name="password"
-              autoComplete="off"
+              autoComplete="one-time-code"
               className="pr-9"
               required
             />

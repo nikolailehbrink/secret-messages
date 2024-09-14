@@ -139,7 +139,7 @@ export default function EncryptForm({ errors }: Props) {
             type="password"
             name="password"
             className="pr-9"
-            autoComplete="off"
+            autoComplete="one-time-code"
             minLength={4}
             required
           />
