@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { EXPIRATION_TIMES } from "@/constants/expiration-times";
 
 type Props = {
   errors?: FlattenedErrors | null;
@@ -90,13 +91,11 @@ export default function EncryptForm({ errors }: Props) {
                 <SelectValue placeholder="Never" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 Min.</SelectItem>
-                <SelectItem value="15">15 Min.</SelectItem>
-                <SelectItem value="60">1 Hour</SelectItem>
-                <SelectItem value="720">12 Hours</SelectItem>
-                <SelectItem value="4320">3 Days</SelectItem>
-                <SelectItem value="10080">7 Days</SelectItem>
-                <SelectItem value="40320">28 days</SelectItem>
+                {EXPIRATION_TIMES.map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {value !== "" && (

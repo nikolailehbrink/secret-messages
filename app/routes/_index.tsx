@@ -14,6 +14,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
+import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
@@ -39,16 +40,8 @@ const schema = z.object({
     .min(2, "The message needs at least two characters.")
     .max(500, "The message can't be longer than 500 characters."),
   oneTimeMessage: z.literal("on").nullable(),
-  expirationTime: z.enum([
-    "1",
-    "15",
-    "60",
-    "720",
-    "4320",
-    "10080",
-    "40320",
-    "",
-  ]),
+  // Pull the first value out explicitly, like mentioned in https://stackoverflow.com/a/73825370/14769333
+  expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
   password: z.string().min(4, "The password needs at least four characters."),
 });
 
