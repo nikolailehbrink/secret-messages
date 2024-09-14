@@ -1,9 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import { encryptText } from "@/lib/crypto";
 import short from "short-uuid";
 import { DateTime } from "luxon";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/.server/prisma";
 
 export async function createMessage(
   content: string,
