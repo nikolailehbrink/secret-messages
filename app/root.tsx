@@ -10,7 +10,12 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import { Analytics } from "@vercel/analytics/react";
-import { LinksFunction, MetaFunction } from "@vercel/remix";
+import {
+  LinksFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+  json,
+} from "@vercel/remix";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
 import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
@@ -27,14 +32,13 @@ export const links: LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/icon.png" },
 ];
 
-export const meta: MetaFunction = ({ error }) => {
-  const origin = !import.meta.env.DEV
-    ? process.env.VERCEL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000"
-    : "http://localhost:5173";
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { origin } = new URL(request.url);
+  return json(origin);
+}
 
-  const ogImagePath = "/og-image.jpg";
+export const meta: MetaFunction<typeof loader> = ({ error, data: origin }) => {
+  const ogImagePath = `${origin}/og-image.jpg`;
   const title = error
     ? isRouteErrorResponse(error) && error.status === 404
       ? error.statusText
@@ -48,17 +52,19 @@ export const meta: MetaFunction = ({ error }) => {
     { property: "og:title", content: title },
     {
       property: "og:image",
-      content: origin + ogImagePath,
+      content: ogImagePath,
     },
     { property: "og:type", content: "website" },
     { property: "og:url", content: origin },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
-    { name: "twitter:image", content: origin + ogImagePath },
+    { name: "twitter:image", content: ogImagePath },
     {
       tagName: "link",
       rel: "canonical",
-      href: origin,
+      href: !import.meta.env.DEV
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : origin,
     },
   ];
 };
