@@ -6,6 +6,8 @@ export const EXPIRATION_TIMES = [
   ["4320", "3 Days"],
   ["10080", "7 Days"],
   ["40320", "28 days"],
+  ["262800", "6 Months"],
+  ["525600", "1 Year"],
 ] as const;
 
 export const EXPIRATION_TIMES_VALUES = EXPIRATION_TIMES.map(([value]) => value);
