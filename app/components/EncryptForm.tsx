@@ -20,11 +20,11 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function EncryptForm({
-  errors,
-}: {
+type Props = {
   errors?: FlattenedErrors | null;
-}) {
+};
+
+export default function EncryptForm({ errors }: Props) {
   const { state } = useNavigation();
   const [charCount, setCharCount] = useState(0);
   const passwordRef = useRef<HTMLInputElement>(null!);

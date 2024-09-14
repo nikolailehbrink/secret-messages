@@ -1,16 +1,18 @@
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
+type Props = React.HTMLProps<HTMLHeadingElement> & {
+  children: ReactNode;
+  className?: string;
+  level?: "1" | "2" | "3" | "4" | "5" | "6";
+};
+
 export default function GradientHeading({
   children,
   level = "1",
   className,
   ...props
-}: {
-  children: ReactNode;
-  className?: string;
-  level?: "1" | "2" | "3" | "4" | "5" | "6";
-}) {
+}: Props) {
   const HeadingLevel = `h${level}` as const;
   return (
     <HeadingLevel

@@ -4,6 +4,7 @@ import { EyeSlash } from "@phosphor-icons/react/dist/ssr/EyeSlash";
 import { useEffect, useState } from "react";
 
 type Props = { passwordRef: React.RefObject<HTMLInputElement> };
+
 export default function PasswordVisibilityButton({ passwordRef }: Props) {
   const [passwordVisibility, setPasswordVisibility] = useState(false);
 

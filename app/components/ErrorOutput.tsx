@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Warning } from "@phosphor-icons/react/dist/ssr/Warning";
 
 type Props = { message: string; className?: string };
+
 export default function ErrorOutput({ message, className }: Props) {
   return (
     <div

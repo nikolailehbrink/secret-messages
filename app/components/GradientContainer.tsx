@@ -1,16 +1,18 @@
 import { cn } from "@/lib/utils";
 
+type Props = {
+  children: React.ReactNode;
+  blur?: boolean;
+  className?: string;
+  rotate?: boolean;
+};
+
 export default function GradientContainer({
   children,
   blur,
   className,
   rotate = false,
-}: {
-  children: React.ReactNode;
-  blur?: boolean;
-  className?: string;
-  rotate?: boolean;
-}) {
+}: Props) {
   return (
     <div className={cn("relative flex flex-col", className)}>
       {blur && (
