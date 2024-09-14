@@ -70,7 +70,7 @@ export default function EncryptForm({
             <ErrorOutput key={index} message={error} />
           ))}
         <Textarea
-          className="min-h-[120px] "
+          className="min-h-[120px]"
           id="message"
           name="message"
           placeholder="Type your secret message here..."

@@ -241,7 +241,7 @@ export default function $uuid() {
         />
       </div>
       <div className="flex gap-2">
-        <GradientContainer className="max-w-fit text-pretty break-all ">
+        <GradientContainer className="max-w-fit text-pretty break-all">
           <div
             className="relative flex h-full gap-2 rounded-md bg-white/50 p-1
               px-2 text-sm text-neutral-700 backdrop-blur-2xl"
