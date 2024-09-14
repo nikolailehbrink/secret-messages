@@ -115,8 +115,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   invariant(params.uuid, "No uuid provided");
-
-  const password = (await request.formData()).get("password");
+  const formData = await request.formData();
+  const password = formData.get("password");
 
   if (!password || typeof password !== "string") {
     return json({
@@ -151,7 +151,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       error: null,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     // https://github.com/remix-run/remix/discussions/8616
     return json({
       decryptedMessage: null,
