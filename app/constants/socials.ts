@@ -1,4 +1,6 @@
-import { GithubLogo, LinkedinLogo, XLogo } from "@phosphor-icons/react";
+import { GithubLogo } from "@phosphor-icons/react/dist/ssr/GithubLogo";
+import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr/LinkedinLogo";
+import { XLogo } from "@phosphor-icons/react/dist/ssr/XLogo";
 
 export const SOCIALS = [
   {

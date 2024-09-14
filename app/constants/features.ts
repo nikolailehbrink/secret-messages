@@ -1,4 +1,6 @@
-import { Detective, LinkSimple, LockKey } from "@phosphor-icons/react";
+import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
+import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
+import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
 
 export const FEATURES = [
   {
