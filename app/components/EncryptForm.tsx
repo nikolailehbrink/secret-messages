@@ -87,7 +87,7 @@ export default function EncryptForm({ errors }: Props) {
             {/* https://github.com/radix-ui/themes/issues/234 */}
             <input type="hidden" name="expiration-time" value={value} />
             <Select value={value} onValueChange={(e) => setValue(e)}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Select expiration time">
                 <SelectValue placeholder="Never" />
               </SelectTrigger>
               <SelectContent>
@@ -113,7 +113,11 @@ export default function EncryptForm({ errors }: Props) {
         </Label>
       </div>
       <div className="items-top flex space-x-1.5">
-        <Checkbox id="one-time-message" name="one-time-message" />
+        <Checkbox
+          aria-label="Make this message a One-Time-Message"
+          id="one-time-message"
+          name="one-time-message"
+        />
         <div className="grid gap-0.5 leading-none">
           <Label
             htmlFor="one-time-message"

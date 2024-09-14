@@ -14,6 +14,7 @@ export default function Footer() {
           prefetch="viewport"
           className="group flex items-center gap-2 tracking-tight
             text-neutral-800"
+          aria-label="Go to homepage"
         >
           <img
             src="/logo.png"
@@ -40,6 +41,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="text-neutral-950 hover:underline
                 hover:underline-offset-2"
+              aria-label="Go to Nikolai Lehbrink's website"
             >
               Nikolai Lehbrink
             </Link>
@@ -57,6 +59,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-neutral-950"
+                  aria-label={`Go to ${name} account of Nikolai Lehbrink`}
                 >
                   <Icon size={24} weight="duotone" />
                 </Link>
