@@ -96,15 +96,17 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return json(url);
 }
 
-// This function prevents Remix from calling the loader after a message has been successfully decrypted and thus the action was triggered.
-// The default behavior of Remix is to revalidate the loader after the action has been called.
-// That would lead to the messageNotFoundResponse to be thrown for one-time-messages because the message has been marked as viewed in the action and should not be viewable as stated in the if conditional in the loader.
+// Prevents Remix from revalidating the loader after the message is successfully decrypted in the action function.
+// By default, Remix re-runs the loader after an action to ensure the data is up-to-date.
+// However, for one-time messages, revalidating would result in the message being marked as "viewed" and deleted.
+// This function checks if the action has already decrypted and displayed the message.
+// If so, it prevents revalidation to avoid throwing the "messageNotFoundResponse" in the loader.
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   actionResult,
   defaultShouldRevalidate,
 }) => {
-  // Only revalidate if the action did not successfully retrieve and display the message
-  if (actionResult?.decryptedMessage) {
+  // Only skip revalidation if the message was successfully decrypted and is a one-time-message.
+  if (actionResult?.decryptedMessage && actionResult?.isOneTimeMessage) {
     return false;
   }
   return defaultShouldRevalidate;
