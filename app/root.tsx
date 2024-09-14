@@ -59,13 +59,7 @@ export const meta: MetaFunction<typeof loader> = ({ error, data: origin }) => {
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
     { name: "twitter:image", content: ogImagePath },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: !import.meta.env.DEV
-        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-        : origin,
-    },
+    // TODO: Inform about canonical URL
   ];
 };
 
