@@ -20,12 +20,9 @@ import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
 import GradientContainer from "@/components/GradientContainer";
-
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
 import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
-import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
 import { NumberCircleOne } from "@phosphor-icons/react/dist/ssr/NumberCircleOne";
 import { ClockCountdown } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
@@ -35,6 +32,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { dateTime } from "@/lib/helper";
 import { messageNotFoundResponse } from "@/lib/response";
+import { CLIPBOARD_ICONS } from "@/constants/clipboard-icons";
+
+type ClipboardStatus = "default" | "success" | "error";
 
 export const meta: MetaFunction = ({ matches }) => {
   const parentMeta = matches
@@ -178,9 +178,9 @@ export default function $uuid() {
   const expirationDate =
     data?.expiresAt && dateTime.format(new Date(data.expiresAt));
 
-  const [copyToClipboardIcon, setCopyToClipboardIcon] = useState({
-    icon: Clipboard,
-  });
+  const [clipboardStatus, setClipboardStatus] =
+    useState<ClipboardStatus>("default");
+  const ClipboardIcon = CLIPBOARD_ICONS.get(clipboardStatus) ?? XCircle;
 
   return !decryptedMessage ? (
     <div
@@ -253,6 +253,7 @@ export default function $uuid() {
         </GradientContainer>
         <GradientContainer className="inline-flex self-start">
           <Button
+            aria-label="Copy link to clipboard"
             className="relative size-9 border-none bg-white/50
               hover:bg-transparent"
             size="icon"
@@ -261,19 +262,18 @@ export default function $uuid() {
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(url);
-                setCopyToClipboardIcon({ icon: CheckCircle });
+                setClipboardStatus("success");
               } catch (error) {
-                setCopyToClipboardIcon({ icon: XCircle });
+                console.error(error);
+                setClipboardStatus("error");
               } finally {
                 setTimeout(() => {
-                  setCopyToClipboardIcon({ icon: Clipboard });
+                  setClipboardStatus("default");
                 }, 2000);
               }
             }}
           >
-            {copyToClipboardIcon.icon && (
-              <copyToClipboardIcon.icon weight="duotone" size={20} />
-            )}
+            <ClipboardIcon size="20" weight="duotone" />
           </Button>
         </GradientContainer>
       </div>
