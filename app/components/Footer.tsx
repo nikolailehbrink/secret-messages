@@ -11,6 +11,7 @@ export default function Footer() {
       >
         <Link
           to={"/"}
+          prefetch="viewport"
           className="group flex items-center gap-2 tracking-tight
             text-neutral-800"
         >

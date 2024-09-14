@@ -308,7 +308,11 @@ export default function $uuid() {
         {decryptedMessage}
       </p>
       <p className="text-xs text-muted-foreground">{creationDate}</p>
-      <Link className="group !mt-4 inline-flex gap-1 text-sm" to="/">
+      <Link
+        className="group !mt-4 inline-flex gap-1 text-sm"
+        to="/"
+        prefetch="viewport"
+      >
         <LockKey size={20} weight="duotone" />
         <span className="group-hover:underline group-hover:underline-offset-4">
           Create your own secret message

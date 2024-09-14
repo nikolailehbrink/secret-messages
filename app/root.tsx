@@ -118,7 +118,7 @@ export function ErrorBoundary() {
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
         <Button asChild variant="outline">
-          <Link to="/">
+          <Link to="/" prefetch="viewport">
             <ChatCircleDots
               size={20}
               weight="duotone"
