@@ -23,14 +23,14 @@ import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal
 import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
 import { ChatCircleDots } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
 
-import styles from "@/index.css?url";
 import Footer from "./components/Footer";
 import GradientHeading from "./components/GradientHeading";
 import usePageUrl from "./hooks/usePageUrl";
 import { Button } from "./components/ui/button";
 
+import "./tailwind.css";
+
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
   {
     rel: "preload",
     as: "font",
