@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "build": "remix vite:build",
-    "dev:vite": "remix vite:dev --host",
+    "dev:vite": "remix vite:dev --host --open",
     "dev": "concurrently 'npm:dev:db' 'npm:dev:vite' --kill-others",
     "dev:db": "docker-compose up",
     "format": "prettier --write .",
