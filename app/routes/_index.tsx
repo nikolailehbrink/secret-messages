@@ -15,6 +15,7 @@ import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
+import TextScramble from "@/components/TextScramble";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
@@ -115,13 +116,14 @@ export default function Index() {
         <GradientHeading
           className="text-4xl/snug md:text-5xl/snug lg:text-6xl/snug"
         >
-          Secret Messages
+          <TextScramble text="Secret Messages" revealSpeed={150} />
         </GradientHeading>
         <p
           className="mx-auto max-w-[700px] text-neutral-600
             dark:text-neutral-400 md:text-xl"
         >
-          {description}
+          <TextScramble revealSpeed={15} text={description} />
+          {/* {description} */}
         </p>
         <GradientContainer className="mt-4 inline-flex" rotate>
           <div className="rounded-md bg-white/40 backdrop-blur-md">
