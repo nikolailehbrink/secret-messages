@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { forwardRef, ReactNode } from "react";
 
 type Props = React.HTMLProps<HTMLHeadingElement> & {
   children: ReactNode;
@@ -7,12 +7,10 @@ type Props = React.HTMLProps<HTMLHeadingElement> & {
   level?: "1" | "2" | "3" | "4" | "5" | "6";
 };
 
-export default function GradientHeading({
-  children,
-  level = "1",
-  className,
-  ...props
-}: Props) {
+const GradientHeading = forwardRef(function GradientHeading(
+  { children, level = "1", className, ...props }: Props,
+  ref: React.Ref<HTMLHeadingElement>,
+) {
   const HeadingLevel = `h${level}` as const;
   return (
     <HeadingLevel
@@ -22,8 +20,11 @@ export default function GradientHeading({
         className,
       )}
       {...props}
+      ref={ref}
     >
       {children}
     </HeadingLevel>
   );
-}
+});
+
+export default GradientHeading;

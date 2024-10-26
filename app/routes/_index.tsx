@@ -12,10 +12,10 @@ import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
-import TextScramble from "@/components/TextScramble";
+import { useGSAP, gsap } from "@/lib/gsap";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
@@ -33,8 +33,6 @@ export const meta: MetaFunction = ({ matches }) => {
   ];
 };
 
-export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
-
 const schema = z.object({
   message: z
     .string()
@@ -45,6 +43,8 @@ const schema = z.object({
   expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
   password: z.string().min(4, "The password needs at least four characters."),
 });
+
+export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 export async function loader() {
   const messageCount = getMessageCount("all");
@@ -107,25 +107,117 @@ export default function Index() {
   const actionData = useActionData<typeof action>();
   const formErrors = actionData?.formErrors;
   const uuidError = actionData?.uuidError;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+  const messageCounterRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const timeline = gsap.timeline();
+      timeline
+        .to(headingRef.current, {
+          scale: 1,
+          autoAlpha: 1,
+        })
+        .fromTo(
+          headingRef.current,
+          {
+            y: 200,
+            ease: "power4.inOut",
+          },
+          {
+            duration: 1.5,
+            y: 0,
+          },
+          "-=0.25",
+        )
+        .fromTo(
+          descriptionRef.current,
+          { y: 48, ease: "power4.inOut" },
+          {
+            autoAlpha: 1,
+            y: 0,
+          },
+          "-=0.5",
+        )
+        .to(messageCounterRef.current, {
+          scale: 1,
+          ease: "elastic.out(0.8,0.3)",
+        })
+        .fromTo(
+          formRef.current,
+          {
+            y: 64,
+          },
+          {
+            autoAlpha: 1,
+            y: 0,
+          },
+          "-=0.5",
+        )
+        .add(function generateCypherTimeline() {
+          const cypherTimeline = gsap.timeline();
+          cypherTimeline
+            .to(headingRef.current, {
+              duration: 2,
+              text: {
+                // value: () => generateCypher("Secret Messages"),
+                value: "****** ********",
+                newClass: "text-neutral-400",
+              },
+              yoyo: true,
+              repeat: 1,
+              repeatDelay: 1,
+              ease: "none",
+            })
+            .to(descriptionRef.current, {
+              delay: 1,
+              duration: 8,
+              text: {
+                value: description,
+                newClass: "text-black/10",
+              },
+              yoyo: true,
+              repeat: 1,
+              repeatDelay: 1,
+              ease: "none",
+            })
+            .repeat(-1)
+            .repeatDelay(2);
+        }, "+=0.5");
+    },
+    { scope: containerRef },
+  );
+
   return (
     <div
+      ref={containerRef}
       className="container flex h-full flex-col items-center justify-center
         space-y-12 px-4 text-center md:space-y-16 md:px-6"
     >
       <div>
         <GradientHeading
-          className="text-4xl/snug md:text-5xl/snug lg:text-6xl/snug"
+          ref={headingRef}
+          className="scale-50 text-4xl/snug opacity-0 md:text-5xl/snug
+            lg:text-6xl/snug"
         >
-          <TextScramble text="Secret Messages" revealSpeed={150} />
+          Secret Messages
         </GradientHeading>
         <p
-          className="mx-auto max-w-[700px] text-neutral-600
+          ref={descriptionRef}
+          className="invisible mx-auto max-w-[700px] text-neutral-700
             dark:text-neutral-400 md:text-xl"
         >
-          <TextScramble revealSpeed={15} text={description} />
-          {/* {description} */}
+          {/* <TextScramble revealSpeed={15} text={description} /> */}
+          {description}
         </p>
-        <GradientContainer className="mt-4 inline-flex" rotate>
+        <GradientContainer
+          className="mt-4 inline-flex scale-0"
+          rotate
+          ref={messageCounterRef}
+        >
           <div className="rounded-md bg-white/40 backdrop-blur-md">
             <p
               className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
@@ -134,20 +226,24 @@ export default function Index() {
             >
               <Suspense fallback={<span>Wait a second...</span>}>
                 <Await resolve={messageCount}>
-                  {(messageCount) => (
-                    <>
-                      <span className="font-bold">{messageCount}</span> secret{" "}
-                      {messageCount === 1 ? "message" : "messages"} already
-                      created.
-                    </>
-                  )}
+                  {(messageCount) =>
+                    messageCount > 0 ? (
+                      <>
+                        <span className="font-bold">{messageCount}</span> secret{" "}
+                        {messageCount === 1 ? "message" : "messages"} already
+                        created.
+                      </>
+                    ) : (
+                      "Be the first to create a secret message!"
+                    )
+                  }
                 </Await>
               </Suspense>
             </p>
           </div>
         </GradientContainer>
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md opacity-0" ref={formRef}>
         <EncryptForm errors={formErrors} />
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { forwardRef } from "react";
 
 type Props = {
   children: React.ReactNode;
@@ -7,14 +8,12 @@ type Props = {
   rotate?: boolean;
 };
 
-export default function GradientContainer({
-  children,
-  blur,
-  className,
-  rotate = false,
-}: Props) {
+const GradientContainer = forwardRef(function GradientContainer(
+  { children, blur, className, rotate = false }: Props,
+  ref: React.Ref<HTMLDivElement>,
+) {
   return (
-    <div className={cn("relative flex flex-col", className)}>
+    <div className={cn("relative flex flex-col", className)} ref={ref}>
       {blur && (
         <div
           className={cn(
@@ -35,4 +34,6 @@ export default function GradientContainer({
       {children}
     </div>
   );
-}
+});
+
+export default GradientContainer;
