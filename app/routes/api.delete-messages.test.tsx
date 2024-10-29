@@ -42,4 +42,14 @@ describe("delete-messages loader", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toBe("Messages deleted successfully.");
   });
+  // returns 200 in develeopment
+  it("returns 200 in development", async () => {
+    process.env.NODE_ENV = "development";
+    const request = mockRequest(null);
+
+    const response = await loader({ request } as any);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toBe("Messages deleted successfully.");
+  });
 });
