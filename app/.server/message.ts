@@ -75,10 +75,12 @@ export async function markMessageAsViewed(uuid: string) {
   });
 }
 
-// "all" is used to count all messages, because a message can be one-time and expiring at the same time and we want to count it only once for the output but still have the message appear in both counters for oneTime and expiring messages.
 type MessageType = "oneTime" | "expiring" | "standard" | "all";
 
-export async function getMessageCount(messageType: MessageType) {
+// The "all" type is used to count all messages. This is necessary because a message can be both one-time and expiring simultaneously.
+// We want to count such messages only once in the total count for the output, but still have them appear in both the oneTime and expiring counters.
+// This ensures that the total count reflects the actual number of unique messages, while the individual counters provide insight into the specific types of messages.
+export async function getMessageCount(type: MessageType = "all") {
   const counter = await prisma.messageCounter.findUnique({
     where: {
       type: messageType,

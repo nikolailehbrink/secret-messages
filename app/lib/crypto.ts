@@ -7,6 +7,7 @@ import {
 
 const algorithm = "aes-256-cbc";
 
+// TODO: Implement proper salt
 export function encryptText(text: string, password: string) {
   const key = scryptSync(password, "salt", 32);
   const iv = randomBytes(16);

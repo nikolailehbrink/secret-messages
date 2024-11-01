@@ -39,7 +39,8 @@ const schema = z.object({
     .min(2, "The message needs at least two characters.")
     .max(500, "The message can't be longer than 500 characters."),
   oneTimeMessage: z.literal("on").nullable(),
-  // Pull the first value out explicitly, like mentioned in https://stackoverflow.com/a/73825370/14769333
+  // Pull the first value out explicitly to ensure proper type inference.
+  // For more details, refer to: https://stackoverflow.com/a/73825370/14769333
   expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
   password: z.string().min(4, "The password needs at least four characters."),
 });

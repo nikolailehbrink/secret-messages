@@ -10,6 +10,7 @@ import { vercelPreset } from "@vercel/remix/vite";
 installGlobals();
 
 export default defineConfig(() => {
+  // Check if the code is not running on Vercel
   if (!process.env.VERCEL) {
     return {
       plugins: [remix(), tsconfigPaths()],

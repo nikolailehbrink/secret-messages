@@ -15,13 +15,13 @@ This app allows users to send and receive encrypted messages securely. One-Time-
 
 ## 🤗 Room for improvement
 
-If you noticed a bug or something that could be improved, I welcome you to [file an issue](https://github.com/your-repo/secret-messages/issues/new) or [open a pull request](https://github.com/your-repo/secret-messages/compare) to contribute to the project.
+If you noticed a bug or something that could be improved, I welcome you to [file an issue](https://github.com/nikolailehbrink/secret-messages/issues/new) or [open a pull request](https://github.com/nikolailehbrink/secret-messages/compare) to contribute to the project.
 
 ## Development
 
 Prerequisites:
 
-- Docker
+- Docker (version 20.10.7 or higher)
 
 First, install the dependencies:
 
@@ -61,4 +61,10 @@ To run the app in production mode:
 npm start
 ```
 
-Now you'll need to pick a host to deploy it to.
+Now you'll need to pick a host to deploy it to. Here are some popular hosting providers:
+
+- [Vercel](https://vercel.com/)
+- [Netlify](https://www.netlify.com/)
+- [Heroku](https://www.heroku.com/)
+- [DigitalOcean](https://www.digitalocean.com/)
+- [AWS](https://aws.amazon.com/)
