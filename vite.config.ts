@@ -13,6 +13,9 @@ export default defineConfig(() => {
   // Check if the code is not running on Vercel
   if (!process.env.VERCEL) {
     return {
+      test: {
+        include: ["**/*.test.ts", "**/*.test.tsx"],
+      },
       plugins: [remix(), tsconfigPaths()],
     };
   }
