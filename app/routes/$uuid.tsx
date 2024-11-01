@@ -173,10 +173,12 @@ export default function $uuid() {
 
   const error = data?.error;
   const decryptedMessage = data?.decryptedMessage;
-  const creationDate =
-    data?.createdAt && dateTime.format(new Date(data.createdAt));
-  const expirationDate =
-    data?.expiresAt && dateTime.format(new Date(data.expiresAt));
+  const creationDate = data?.createdAt
+    ? dateTime.format(new Date(data.createdAt))
+    : null;
+  const expirationDate = data?.expiresAt
+    ? dateTime.format(new Date(data.expiresAt))
+    : null;
 
   const [clipboardStatus, setClipboardStatus] =
     useState<ClipboardStatus>("default");
@@ -201,7 +203,7 @@ export default function $uuid() {
             <Input
               id="password"
               ref={passwordRef}
-              placeholder={"Enter the password for the message"}
+              placeholder="Enter the password for the message"
               type="password"
               name="password"
               autoComplete="one-time-code"
@@ -280,7 +282,7 @@ export default function $uuid() {
     </div>
   ) : (
     <div className="container h-full max-w-xl space-y-2 self-center">
-      {data?.isOneTimeMessage && (
+      {data?.isOneTimeMessage ? (
         <div className="flex items-center gap-1 text-rose-500">
           <NumberCircleOne className="shrink-0" weight="duotone" size={28} />
 
@@ -290,8 +292,8 @@ export default function $uuid() {
             tab.
           </p>
         </div>
-      )}
-      {!data?.isOneTimeMessage && expirationDate && (
+      ) : null}
+      {!data?.isOneTimeMessage && expirationDate !== null ? (
         <div className="flex items-center gap-1 text-sky-500">
           <ClockCountdown className="shrink-0" size={28} weight="duotone" />
 
@@ -300,7 +302,7 @@ export default function $uuid() {
             <br /> This message will be available until {expirationDate}.
           </p>
         </div>
-      )}
+      ) : null}
       <p
         className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
           backdrop-blur-xl"

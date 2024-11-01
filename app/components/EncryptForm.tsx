@@ -28,7 +28,7 @@ type Props = {
 export default function EncryptForm({ errors }: Props) {
   const { state } = useNavigation();
   const [charCount, setCharCount] = useState(0);
-  const passwordRef = useRef<HTMLInputElement>(null!);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState("");
 
   const passwordErrors = errors?.fieldErrors.password;
@@ -49,7 +49,7 @@ export default function EncryptForm({ errors }: Props) {
           )}
         >
           <Label className="block leading-tight" htmlFor="message">
-            Your Message{" "}
+            Your Message
           </Label>
           {charCount > 0 ? (
             <span
@@ -103,7 +103,7 @@ export default function EncryptForm({ errors }: Props) {
                 aria-label="Reset lifetime"
                 type="button"
                 className="shrink-0"
-                size={"icon"}
+                size="icon"
                 onClick={() => setValue("")}
               >
                 <Backspace size={20} weight="duotone" />
@@ -138,7 +138,7 @@ export default function EncryptForm({ errors }: Props) {
           <Input
             id="password"
             ref={passwordRef}
-            placeholder={"Enter a password to protect your message"}
+            placeholder="Enter a password to protect your message"
             type="password"
             name="password"
             className="pr-9"

@@ -12,7 +12,7 @@ import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
-import { Suspense, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
 import { useGSAP, gsap } from "@/lib/gsap";
@@ -79,7 +79,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const { uuid } = await createMessage(
       data.message,
       isOneTimeMessage,
-      parseInt(data.expirationTime) || null,
+      data.expirationTime ? parseInt(data.expirationTime) : null,
       data.password,
     );
     await Promise.all([
@@ -95,11 +95,14 @@ export async function action({ request }: ActionFunctionArgs) {
       error instanceof PrismaClientKnownRequestError &&
       error.code === "P2002"
     )
-      return json({
-        uuidError:
-          "An error occurred while attempting to save your message. Please try again.",
-        formErrors: null,
-      });
+      return json(
+        {
+          uuidError:
+            "An error occurred while attempting to save your message. Please try again.",
+          formErrors: null,
+        },
+        { status: 500 },
+      );
   }
 }
 
@@ -280,27 +283,31 @@ export default function Index() {
           className="mt-6 grid max-w-5xl auto-rows-fr grid-cols-1
             justify-items-center gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          {FEATURES.map(({ icon: Icon, title, description }, index) => {
-            return (
-              <GradientContainer
-                className="w-full max-w-md"
-                key={title}
-                rotate={index % 2 === 0}
-              >
-                <div
-                  className="relative flex h-full flex-col items-center
-                    justify-center space-y-1 rounded-md bg-white/50 p-4
-                    text-neutral-700 backdrop-blur-2xl"
-                >
-                  <Icon weight="duotone" size={32} />
-                  <GradientHeading level="3" className="text-xl font-bold">
-                    {title}
-                  </GradientHeading>
-                  <p>{description}</p>
-                </div>
-              </GradientContainer>
-            );
-          })}
+          {useMemo(
+            () =>
+              FEATURES.map(({ icon: Icon, title, description }, index) => {
+                return (
+                  <GradientContainer
+                    className="w-full max-w-md"
+                    key={title}
+                    rotate={index % 2 === 0}
+                  >
+                    <div
+                      className="relative flex h-full flex-col items-center
+                        justify-center space-y-1 rounded-md bg-white/50 p-4
+                        text-neutral-700 backdrop-blur-2xl"
+                    >
+                      <Icon weight="duotone" size={32} />
+                      <GradientHeading level="3" className="text-xl font-bold">
+                        {title}
+                      </GradientHeading>
+                      <p>{description}</p>
+                    </div>
+                  </GradientContainer>
+                );
+              }),
+            [FEATURES],
+          )}
         </div>
       </section>
     </div>

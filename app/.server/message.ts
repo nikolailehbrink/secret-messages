@@ -11,17 +11,18 @@ export async function createMessage(
 ) {
   let expirationDate: string | null = null;
   const { iv, encryptedMessage } = encryptText(content, password);
+  const uuid = short.generate();
   const createdDate = DateTime.now();
   const createdAt = createdDate.toJSDate();
 
-  if (minutesToExpire) {
+  if (minutesToExpire !== null) {
     expirationDate = createdDate.plus({ minutes: minutesToExpire }).toISO();
   }
 
   return prisma.message.create({
     data: {
       encryptedContent: encryptedMessage,
-      uuid: short.generate(),
+      uuid,
       iv,
       expiresAt: expirationDate,
       createdAt,
@@ -83,7 +84,7 @@ type MessageType = "oneTime" | "expiring" | "standard" | "all";
 export async function getMessageCount(type: MessageType = "all") {
   const counter = await prisma.messageCounter.findUnique({
     where: {
-      type: messageType,
+      type,
     },
   });
   return counter?.count ?? 0;
