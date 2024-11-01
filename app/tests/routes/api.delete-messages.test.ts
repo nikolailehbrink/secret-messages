@@ -1,15 +1,14 @@
-import { loader } from "./api.delete-messages";
-import { describe, it, expect, vi } from "vitest";
-
-vi.mock("@/.server/message");
+import { loader } from "@/routes/api.delete-messages";
+import { describe, it, expect } from "vitest";
 
 describe("delete-messages loader", () => {
-  function mockRequest(authHeader: string | null) {
-    const url = new URL("https://localhost:3000");
-    const headers = new Headers();
-    const authorization = authHeader ? `${authHeader}` : "";
-    headers.set("authorization", authorization);
-    return new Request(url, { headers });
+  function mockRequest(authorizationHeader: string | null) {
+    const authorization = (authorizationHeader ??= "");
+    return new Request("https://localhost:3000", {
+      headers: {
+        Authorization: authorization,
+      },
+    });
   }
 
   it("returns 401 if authorization header is missing in production", async () => {
@@ -42,9 +41,9 @@ describe("delete-messages loader", () => {
     const response = await loader({ request, params: {}, context: {} });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toBe("Messages deleted successfully.");
+    expect(await response.json()).toEqual("Messages deleted successfully.");
   });
-  // returns 200 in develeopment
+  // returns 200 in development
   it("returns 200 in development", async () => {
     process.env.NODE_ENV = "development";
     const request = mockRequest(null);
@@ -52,6 +51,6 @@ describe("delete-messages loader", () => {
     const response = await loader({ request, params: {}, context: {} });
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toBe("Messages deleted successfully.");
+    expect(await response.json()).toEqual("Messages deleted successfully.");
   });
 });

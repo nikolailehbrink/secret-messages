@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { encryptText, decryptText } from "./crypto";
+import { encryptText, decryptText } from "@/lib/crypto";
 import { randomBytes } from "crypto";
 
 describe("Crypto functions", () => {
@@ -8,7 +8,7 @@ describe("Crypto functions", () => {
 
   it("should encrypt and decrypt text correctly", () => {
     const { iv, encryptedMessage } = encryptText(text, password);
-    expect(iv).toHaveLength(32); // IV should be 16 bytes in hex (32 characters)
+    expect(Buffer.from(iv, "hex")).toHaveLength(16); // IV is 16 bytes
     expect(encryptedMessage).not.toBe(text);
 
     const decryptedMessage = decryptText(encryptedMessage, iv, password);
@@ -16,11 +16,13 @@ describe("Crypto functions", () => {
   });
 
   it("should return different encrypted messages for the same text with different IVs", () => {
-    const encrypted1 = encryptText(text, password);
-    const encrypted2 = encryptText(text, password);
+    const firstEncryption = encryptText(text, password);
+    const secondEncryption = encryptText(text, password);
 
-    expect(encrypted1.encryptedMessage).not.toBe(encrypted2.encryptedMessage);
-    expect(encrypted1.iv).not.toBe(encrypted2.iv);
+    expect(firstEncryption.encryptedMessage).not.toBe(
+      secondEncryption.encryptedMessage,
+    );
+    expect(firstEncryption.iv).not.toBe(secondEncryption.iv);
   });
 
   it("should fail to decrypt with wrong password", () => {
@@ -34,10 +36,10 @@ describe("Crypto functions", () => {
 
   it("should fail to decrypt with wrong IV", () => {
     const { iv, encryptedMessage } = encryptText(text, password);
-    const wrongIv = randomBytes(16).toString("hex");
+    const invalidIv = randomBytes(16).toString("hex");
 
     expect(() => {
-      decryptText(encryptedMessage, wrongIv, password);
+      decryptText(encryptedMessage, invalidIv, password);
     }).toThrow();
   });
 });
