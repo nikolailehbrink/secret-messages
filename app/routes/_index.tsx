@@ -213,7 +213,6 @@ export default function Index() {
           className="invisible mx-auto max-w-screen-sm text-neutral-700
             dark:text-neutral-400 md:text-xl"
         >
-          {/* <TextScramble revealSpeed={15} text={description} /> */}
           {description}
         </p>
         <GradientContainer
