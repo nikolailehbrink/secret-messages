@@ -210,7 +210,7 @@ export default function Index() {
         </GradientHeading>
         <p
           ref={descriptionRef}
-          className="invisible mx-auto max-w-[700px] text-neutral-700
+          className="invisible mx-auto max-w-screen-sm text-neutral-700
             dark:text-neutral-400 md:text-xl"
         >
           {/* <TextScramble revealSpeed={15} text={description} /> */}
@@ -269,7 +269,7 @@ export default function Index() {
             Secure and Convenient
           </GradientHeading>
           <p
-            className="max-w-[900px] text-neutral-600 dark:text-neutral-400
+            className="max-w-screen-sm text-neutral-600 dark:text-neutral-400
               md:text-xl/relaxed lg:text-base/relaxed xl:text-lg/relaxed"
           >
             Our secret message app allows you to create a unique link and
