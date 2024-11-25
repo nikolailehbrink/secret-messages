@@ -167,7 +167,6 @@ export default function Index() {
             .to(headingRef.current, {
               duration: 2,
               text: {
-                // value: () => generateCypher("Secret Messages"),
                 value: "****** ********",
                 newClass: "text-neutral-400",
               },
