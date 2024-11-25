@@ -5,6 +5,6 @@ import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { TextPlugin } from "gsap/dist/TextPlugin";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, TextPlugin);
-gsap.defaults({ ease: "power4.inOut", duration: 1 });
+gsap.defaults({ ease: "power4.inOut", duration: 0.75 });
 
 export { gsap, useGSAP };
