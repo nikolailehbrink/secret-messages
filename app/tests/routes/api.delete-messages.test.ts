@@ -10,13 +10,16 @@ describe("delete-messages loader", () => {
       },
     });
   }
+  function generateLoaderFunctionArgs(request: Request) {
+    return { request, params: {}, context: {} };
+  }
 
   it("returns 401 if authorization header is missing in production", async () => {
     process.env.NODE_ENV = "production";
     process.env.CRON_SECRET = "secret";
     const request = mockRequest(null);
 
-    const response = await loader({ request, params: {}, context: {} });
+    const response = await loader(generateLoaderFunctionArgs(request));
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe("Unauthorized");
@@ -27,7 +30,7 @@ describe("delete-messages loader", () => {
     process.env.CRON_SECRET = "secret";
     const request = mockRequest("Bearer wrong-secret");
 
-    const response = await loader({ request, params: {}, context: {} });
+    const response = await loader(generateLoaderFunctionArgs(request));
 
     expect(response.status).toBe(401);
     expect(await response.text()).toBe("Unauthorized");
@@ -38,7 +41,7 @@ describe("delete-messages loader", () => {
     process.env.CRON_SECRET = "secret";
 
     const request = mockRequest("Bearer secret");
-    const response = await loader({ request, params: {}, context: {} });
+    const response = await loader(generateLoaderFunctionArgs(request));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual("Messages deleted successfully.");
@@ -48,7 +51,7 @@ describe("delete-messages loader", () => {
     process.env.NODE_ENV = "development";
     const request = mockRequest(null);
 
-    const response = await loader({ request, params: {}, context: {} });
+    const response = await loader(generateLoaderFunctionArgs(request));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual("Messages deleted successfully.");
