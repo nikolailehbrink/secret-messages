@@ -7,7 +7,7 @@ import { Backspace } from "@phosphor-icons/react/dist/ssr/Backspace";
 import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { FlattenedErrors } from "@/routes/_index";
+import type { FlattenedErrors } from "@/routes/_index";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Input } from "./ui/input";
 import PasswordVisibilityButton from "./PasswordVisibilityButton";

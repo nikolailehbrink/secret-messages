@@ -11,9 +11,9 @@ import {
 } from "@remix-run/react";
 import { Analytics } from "@vercel/analytics/react";
 import {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
+  type LinksFunction,
+  type LoaderFunctionArgs,
+  type MetaFunction,
   json,
 } from "@vercel/remix";
 // Supports weights 100-900

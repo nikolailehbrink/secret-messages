@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { forwardRef, ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 
 type Props = React.HTMLProps<HTMLHeadingElement> & {
   children: ReactNode;

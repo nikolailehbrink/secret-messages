@@ -1,5 +1,5 @@
 import { deleteExpiredOrOneTimeMessages } from "@/.server/message";
-import { json, LoaderFunctionArgs } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "@vercel/remix";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authorizationHeader = request.headers.get("authorization");

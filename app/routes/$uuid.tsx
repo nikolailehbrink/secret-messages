@@ -1,12 +1,12 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  type MetaFunction,
   json,
 } from "@vercel/remix";
 import {
   Link,
-  ShouldRevalidateFunction,
+  type ShouldRevalidateFunction,
   useFetcher,
   useLoaderData,
 } from "@remix-run/react";
