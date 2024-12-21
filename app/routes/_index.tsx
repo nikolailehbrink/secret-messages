@@ -124,32 +124,35 @@ export default function Index() {
         .to(headingRef.current, {
           scale: 1,
           autoAlpha: 1,
+          duration: 0.25,
         })
         .fromTo(
           headingRef.current,
           {
-            y: 200,
-            ease: "power4.inOut",
+            y: 64,
           },
           {
-            duration: 1.5,
             y: 0,
           },
           "-=0.25",
         )
         .fromTo(
           descriptionRef.current,
-          { y: 48, ease: "power4.inOut" },
+          { y: 48 },
           {
             autoAlpha: 1,
             y: 0,
           },
           "-=0.5",
         )
-        .to(messageCounterRef.current, {
-          scale: 1,
-          ease: "elastic.out(0.8,0.3)",
-        })
+        .to(
+          messageCounterRef.current,
+          {
+            scale: 1,
+            ease: "elastic.out(0.8,0.3)",
+          },
+          "-=0.25",
+        )
         .fromTo(
           formRef.current,
           {
@@ -161,6 +164,11 @@ export default function Index() {
           },
           "-=0.5",
         )
+        .from(".how-it-works > *, .feature-item", {
+          stagger: 0.25,
+          autoAlpha: 0,
+          y: 64,
+        })
         .add(function generateCypherTimeline() {
           const cypherTimeline = gsap.timeline();
           cypherTimeline
@@ -250,7 +258,7 @@ export default function Index() {
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
-        <div className="flex flex-col items-center gap-3">
+        <div className="how-it-works flex flex-col items-center gap-3">
           <GradientContainer className="inline-flex">
             <div
               className="rounded-md bg-white/50 p-1 px-2 text-sm
@@ -286,7 +294,7 @@ export default function Index() {
               FEATURES.map(({ icon: Icon, title, description }, index) => {
                 return (
                   <GradientContainer
-                    className="w-full max-w-md"
+                    className="feature-item invisible w-full max-w-md"
                     key={title}
                     rotate={index % 2 === 0}
                   >
