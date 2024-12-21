@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import GradientContainer from "./GradientContainer";
 import { SOCIALS } from "@/constants/socials";
 

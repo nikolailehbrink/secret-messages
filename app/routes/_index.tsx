@@ -1,7 +1,6 @@
 import EncryptForm from "@/components/EncryptForm";
-import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json, redirect, defer } from "@vercel/remix";
-import { Await, useActionData, useLoaderData } from "@remix-run/react";
+import { data, type MetaFunction } from "react-router";
+import { Await, redirect } from "react-router";
 import {
   getMessageCount,
   incrementMessageCount,
@@ -14,8 +13,9 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense, useMemo, useRef } from "react";
 import { FEATURES } from "@/constants/features";
-import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
+import { EXPIRATION_TIMES_IN_MINUTES } from "@/constants/expiration-times";
 import { useGSAP, gsap } from "@/lib/gsap";
+import type { Route } from "./+types";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
@@ -41,7 +41,7 @@ const schema = z.object({
   oneTimeMessage: z.literal("on").nullable(),
   // Pull the first value out explicitly to ensure proper type inference.
   // For more details, refer to: https://stackoverflow.com/a/73825370/14769333
-  expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
+  expirationTime: z.enum(["", ...EXPIRATION_TIMES_IN_MINUTES]),
   password: z.string().min(4, "The password needs at least four characters."),
 });
 
@@ -49,17 +49,20 @@ export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 export async function loader() {
   const messageCount = getMessageCount("all");
-  return defer({ messageCount });
+  return { messageCount };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
+  // return data({ formErrors: {
+  //   das: "das",
+  // }, uuidError: null });
   const formData = await request.formData();
   const message = formData.get("message");
   const oneTimeMessage = formData.get("one-time-message");
   const expirationTime = formData.get("expiration-time");
   const password = formData.get("password");
 
-  const { error, data } = schema.safeParse({
+  const { error, data: parsedData } = schema.safeParse({
     message,
     oneTimeMessage,
     expirationTime,
@@ -67,20 +70,23 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (error) {
-    return json(
+    return data(
       { formErrors: error.flatten(), uuidError: null },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
-  const isOneTimeMessage = data.oneTimeMessage === "on";
-  const isExpiringMessage = data.expirationTime !== "";
+  const isOneTimeMessage = parsedData.oneTimeMessage === "on";
+  const isExpiringMessage = parsedData.expirationTime !== "";
   const isStandardMessage = !isOneTimeMessage && !isExpiringMessage;
   try {
+    // data({ formErrors: null, uuidError: null });
     const { uuid } = await createMessage(
-      data.message,
+      parsedData.message,
       isOneTimeMessage,
-      data.expirationTime ? parseInt(data.expirationTime) : null,
-      data.password,
+      isExpiringMessage ? parseInt(parsedData.expirationTime) : null,
+      parsedData.password,
     );
     await Promise.all([
       isOneTimeMessage && incrementMessageCount("oneTime"),
@@ -88,14 +94,14 @@ export async function action({ request }: ActionFunctionArgs) {
       isStandardMessage && incrementMessageCount("standard"),
       incrementMessageCount("all"),
     ]);
-    return redirect(`/${uuid}`);
+    throw redirect(`/${uuid}`);
   } catch (error) {
     // Handle unique constraint error
     if (
       error instanceof PrismaClientKnownRequestError &&
       error.code === "P2002"
     )
-      return json(
+      return data(
         {
           uuidError:
             "An error occurred while attempting to save your message. Please try again.",
@@ -106,9 +112,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function Index() {
-  const { messageCount } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+export default function Index({
+  actionData,
+  loaderData,
+}: Route.ComponentProps) {
+  const { messageCount } = loaderData;
   const formErrors = actionData?.formErrors;
   const uuidError = actionData?.uuidError;
   const containerRef = useRef<HTMLDivElement>(null);

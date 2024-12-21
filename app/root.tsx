@@ -1,21 +1,19 @@
 import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
+  type LinksFunction,
+  type MetaFunction,
   Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  data,
   isRouteErrorResponse,
   useRouteError,
-} from "@remix-run/react";
+} from "react-router";
 import { Analytics } from "@vercel/analytics/react";
-import {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
-  json,
-} from "@vercel/remix";
+
 // Supports weights 100-900
 import "@fontsource-variable/inter";
 import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
@@ -29,6 +27,7 @@ import usePageUrl from "./hooks/usePageUrl";
 import { Button } from "./components/ui/button";
 
 import "./tailwind.css";
+import type { Route } from "./+types/root";
 
 export const links: LinksFunction = () => [
   {
@@ -41,9 +40,9 @@ export const links: LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/icon.png" },
 ];
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const { origin } = new URL(request.url);
-  return json(origin);
+  return data(origin);
 }
 
 export const meta: MetaFunction<typeof loader> = ({ error, data: origin }) => {

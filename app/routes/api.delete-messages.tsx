@@ -1,8 +1,9 @@
 import { deleteExpiredOrOneTimeMessages } from "@/.server/message";
-import { json, LoaderFunctionArgs } from "@vercel/remix";
+import type { Route } from "./api/+types/delete-messages";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const authorizationHeader = request.headers.get("authorization");
+  // https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs
   if (
     process.env.NODE_ENV !== "development" &&
     authorizationHeader !== `Bearer ${process.env.CRON_SECRET}`
@@ -13,11 +14,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
   try {
     await deleteExpiredOrOneTimeMessages();
-    return json("Messages deleted successfully.");
+    return new Response("Messages deleted successfully.", { status: 200 });
   } catch (error) {
     console.error("Error deleting messages:", error);
-    return json("An error occurred while attempting to delete messages.", {
-      status: 500,
-    });
+    return new Response(
+      "An internal server error occurred while attempting to delete messages.",
+      {
+        status: 500,
+      },
+    );
   }
 }

@@ -1,15 +1,9 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-  json,
-} from "@vercel/remix";
-import {
   Link,
-  ShouldRevalidateFunction,
+  type MetaFunction,
+  type ShouldRevalidateFunction,
   useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+} from "react-router";
 import {
   deleteMessage,
   getMessage,
@@ -33,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { dateTime } from "@/lib/helper";
 import { messageNotFoundResponse } from "@/lib/response";
 import { CLIPBOARD_ICONS } from "@/constants/clipboard-icons";
+import type { Route } from "./+types/$uuid";
 
 type ClipboardStatus = "default" | "success" | "error";
 
@@ -73,7 +68,7 @@ export const meta: MetaFunction = ({ matches }) => {
   ];
 };
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   invariant(params.uuid, "No uuid provided.");
   const message = await getMessage(params.uuid);
   const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
@@ -93,7 +88,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
   const url = request.url;
 
-  return json(url);
+  return url;
 }
 
 // Prevents Remix from revalidating the loader after the message is successfully decrypted in the action function.
@@ -112,19 +107,19 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   return defaultShouldRevalidate;
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request, params }: Route.ActionArgs) {
   invariant(params.uuid, "No uuid provided");
   const formData = await request.formData();
   const password = formData.get("password");
 
   if (!password || typeof password !== "string") {
-    return json({
+    return {
       decryptedMessage: null,
       createdAt: null,
       isOneTimeMessage: null,
       expiresAt: null,
       error: "Provide a password.",
-    });
+    };
   }
 
   const message = await getMessage(params.uuid);
@@ -142,28 +137,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     await markMessageAsViewed(params.uuid);
 
-    return json({
+    return {
       decryptedMessage,
       expiresAt,
       createdAt,
       isOneTimeMessage,
       error: null,
-    });
+    };
   } catch (error) {
     console.error(error);
     // https://github.com/remix-run/remix/discussions/8616
-    return json({
+    return {
       decryptedMessage: null,
       createdAt: null,
       isOneTimeMessage: null,
       expiresAt: null,
       error: "Incorrect password.",
-    });
+    };
   }
 }
 
-export default function $uuid() {
-  const url = useLoaderData<typeof loader>();
+export default function $uuid({ loaderData: url }: Route.ComponentProps) {
   const fetcher = useFetcher<typeof action>();
   const passwordRef = useRef<HTMLInputElement>(null!);
 

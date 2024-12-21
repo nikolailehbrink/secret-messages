@@ -1,4 +1,4 @@
-export const EXPIRATION_TIMES = [
+export const EXPIRATION_TIMES = new Map([
   ["1", "1 Min."],
   ["15", "15 Min."],
   ["60", "1 Hour"],
@@ -8,6 +8,6 @@ export const EXPIRATION_TIMES = [
   ["40320", "28 days"],
   ["262800", "6 Months"],
   ["525600", "1 Year"],
-] as const;
+] as const);
 
-export const EXPIRATION_TIMES_VALUES = EXPIRATION_TIMES.map(([value]) => value);
+export const EXPIRATION_TIMES_IN_MINUTES = EXPIRATION_TIMES.keys();
