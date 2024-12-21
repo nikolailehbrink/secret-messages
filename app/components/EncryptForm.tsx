@@ -80,7 +80,6 @@ export default function EncryptForm({ errors }: Props) {
           id="message"
           name="message"
           placeholder="Type your secret message here..."
-          autoFocus
           minLength={MINIMUM_MESSAGE_LENGTH}
           maxLength={MAXIMUM_MESSAGE_LENGTH}
           onChange={(e) => setCharCount(e.target.value.length)}
