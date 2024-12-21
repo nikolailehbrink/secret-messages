@@ -15,7 +15,7 @@ import { Suspense, useMemo, useRef } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_IN_MINUTES } from "@/constants/expiration-times";
 import { useGSAP, gsap } from "@/lib/gsap";
-import type { Route } from "./+types";
+import type { Route } from "./+types/_index";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";

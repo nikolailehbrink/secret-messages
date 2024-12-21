@@ -11,7 +11,13 @@ describe("delete-messages loader", () => {
     });
   }
   function generateLoaderFunctionArgs(request: Request) {
-    return { request, params: {}, context: {} };
+    return {
+      request,
+      params: {},
+      context: {
+        VALUE_FROM_VERCEL: "Test",
+      },
+    };
   }
 
   it("returns 401 if authorization header is missing in production", async () => {

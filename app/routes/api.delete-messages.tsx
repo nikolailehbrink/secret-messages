@@ -1,5 +1,5 @@
 import { deleteExpiredOrOneTimeMessages } from "@/.server/message";
-import type { Route } from "./api/+types/delete-messages";
+import type { Route } from "./+types/api.delete-messages";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const authorizationHeader = request.headers.get("authorization");
