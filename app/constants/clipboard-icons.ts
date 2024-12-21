@@ -6,4 +6,4 @@ export const CLIPBOARD_ICONS = new Map([
   ["default", Clipboard],
   ["success", CheckCircle],
   ["error", XCircle],
-]);
+] as const);

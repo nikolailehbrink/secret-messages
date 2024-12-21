@@ -21,6 +21,9 @@ import {
 } from "./ui/select";
 import { EXPIRATION_TIMES } from "@/constants/expiration-times";
 
+const MINIMUM_MESSAGE_LENGTH = 2;
+const MAXIMUM_MESSAGE_LENGTH = 500;
+
 type Props = {
   errors?: FlattenedErrors | null;
 };
@@ -55,14 +58,16 @@ export default function EncryptForm({ errors }: Props) {
             <span
               className={cn(
                 "text-xs text-muted-foreground",
-                charCount > 500 || (charCount < 2 && "text-red-500"),
+                (charCount > MAXIMUM_MESSAGE_LENGTH ||
+                  charCount < MINIMUM_MESSAGE_LENGTH) &&
+                  "text-red-500",
               )}
             >
-              {charCount}/500
+              {charCount}/{MAXIMUM_MESSAGE_LENGTH}
             </span>
           ) : (
             <span className="text-xs text-muted-foreground">
-              (max 500 characters)
+              (max. {MAXIMUM_MESSAGE_LENGTH} characters)
             </span>
           )}
         </div>
@@ -76,8 +81,8 @@ export default function EncryptForm({ errors }: Props) {
           name="message"
           placeholder="Type your secret message here..."
           autoFocus
-          minLength={2}
-          maxLength={500}
+          minLength={MINIMUM_MESSAGE_LENGTH}
+          maxLength={MAXIMUM_MESSAGE_LENGTH}
           onChange={(e) => setCharCount(e.target.value.length)}
         />
       </div>
@@ -92,7 +97,7 @@ export default function EncryptForm({ errors }: Props) {
                 <SelectValue placeholder="Never" />
               </SelectTrigger>
               <SelectContent>
-                {EXPIRATION_TIMES.map(([value, label]) => (
+                {[...EXPIRATION_TIMES].map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>

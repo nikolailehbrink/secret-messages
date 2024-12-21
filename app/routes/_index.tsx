@@ -88,7 +88,7 @@ export async function action({ request }: ActionFunctionArgs) {
       isStandardMessage && incrementMessageCount("standard"),
       incrementMessageCount("all"),
     ]);
-    return redirect(`/${uuid}`);
+    throw redirect(`/${uuid}`);
   } catch (error) {
     // Handle unique constraint error
     if (
