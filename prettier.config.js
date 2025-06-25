@@ -11,7 +11,6 @@ const config = {
     "prettier-plugin-merge",
   ],
   tailwindStylesheet: "./app/app.css",
-
   semi: true,
   tabWidth: 2,
   singleQuote: false,
