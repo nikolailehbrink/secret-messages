@@ -3,10 +3,9 @@
 
 generator client {
   provider = "prisma-client-js"
-  // TODO: Would love to use https://www.prisma.io/docs/guides/react-router-7#3-integrate-prisma-into-react-router-7 but
+  // TODO: Would love to use the guide and generated types in the app folder: https://www.prisma.io/docs/guides/react-router-7#3-integrate-prisma-into-react-router-7 but
   // there is currently an error on Vercel: Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x".
-  // This is a workaround to generate the client in the build step.
-  // See https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
+  // This is a workaround: https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
   output   = "../node_modules/@prisma/client-generated"
 }
 
