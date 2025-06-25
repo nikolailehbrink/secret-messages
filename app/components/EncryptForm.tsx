@@ -1,13 +1,10 @@
-import { Form, useNavigation } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { Backspace } from "@phosphor-icons/react/dist/ssr/Backspace";
-import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import type { FlattenedErrors } from "@/routes/_index";
+import type { FlattenedErrors } from "@/routes/index";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Input } from "./ui/input";
 import PasswordVisibilityButton from "./PasswordVisibilityButton";
@@ -20,6 +17,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { EXPIRATION_TIMES } from "@/constants/expiration-times";
+import {
+  BackspaceIcon,
+  CircleNotchIcon,
+  LockKeyIcon,
+} from "@phosphor-icons/react";
 
 const MINIMUM_MESSAGE_LENGTH = 2;
 const MAXIMUM_MESSAGE_LENGTH = 500;
@@ -29,9 +31,9 @@ type Props = {
 };
 
 export default function EncryptForm({ errors }: Props) {
-  const { state } = useNavigation();
+  const { Form, state } = useFetcher();
   const [charCount, setCharCount] = useState(0);
-  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
 
   const passwordErrors = errors?.fieldErrors.password;
@@ -41,8 +43,9 @@ export default function EncryptForm({ errors }: Props) {
     <Form
       id="form"
       method="post"
-      className="flex flex-col gap-4 rounded-lg bg-white/40 p-4 text-left
-        shadow-md ring-2 ring-neutral-50 backdrop-blur-md"
+      action="?index"
+      className="flex flex-col gap-4 rounded-lg bg-white/50 p-4 text-left
+        shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
     >
       <div className="space-y-2">
         <div
@@ -86,13 +89,16 @@ export default function EncryptForm({ errors }: Props) {
         />
       </div>
       <div>
-        <Label className="flex flex-col gap-2">
+        <Label className="flex flex-col items-stretch gap-2">
           Expiration Time
           <div className="flex gap-2">
             {/* https://github.com/radix-ui/themes/issues/234 */}
             <input type="hidden" name="expiration-time" value={value} />
             <Select value={value} onValueChange={(e) => setValue(e)}>
-              <SelectTrigger aria-label="Select expiration time">
+              <SelectTrigger
+                className="w-full"
+                aria-label="Select expiration time"
+              >
                 <SelectValue placeholder="Never" />
               </SelectTrigger>
               <SelectContent>
@@ -111,7 +117,7 @@ export default function EncryptForm({ errors }: Props) {
                 size="icon"
                 onClick={() => setValue("")}
               >
-                <Backspace size={20} weight="duotone" />
+                <BackspaceIcon size={20} weight="duotone" />
               </Button>
             )}
           </div>
@@ -126,7 +132,8 @@ export default function EncryptForm({ errors }: Props) {
         <div className="grid gap-0.5 leading-none">
           <Label
             htmlFor="one-time-message"
-            className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="peer-disabled:cursor-not-allowed
+              peer-disabled:opacity-70"
           >
             One Time Message
           </Label>
@@ -158,15 +165,15 @@ export default function EncryptForm({ errors }: Props) {
         passwordErrors.map((error, index) => (
           <ErrorOutput key={index} message={error} />
         ))}
-      <Button disabled={state === "submitting"} type="submit" size="sm">
-        {state === "submitting" ? (
+      <Button disabled={state !== "idle"} type="submit" size="sm">
+        {state !== "idle" ? (
           <>
-            <CircleNotch className="animate-spin" size={20} />
+            <CircleNotchIcon className="animate-spin" size={20} />
             Generating Link...
           </>
         ) : (
           <>
-            <LockKey size={20} weight="duotone" />
+            <LockKeyIcon size={20} weight="duotone" />
             Encrypt message
           </>
         )}

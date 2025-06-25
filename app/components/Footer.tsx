@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { href, Link } from "react-router";
 import GradientContainer from "./GradientContainer";
 import { SOCIALS } from "@/constants/socials";
 
@@ -10,7 +10,7 @@ export default function Footer() {
           max-sm:flex-col"
       >
         <Link
-          to={"/"}
+          to={href("/")}
           prefetch="viewport"
           className="group flex items-center gap-2 tracking-tight
             text-neutral-800"
@@ -32,8 +32,8 @@ export default function Footer() {
           </div>
         </Link>
         <div
-          className="flex flex-wrap items-center justify-center gap-4 text-sm
-            text-muted-foreground sm:gap-2"
+          className="text-muted-foreground flex flex-wrap items-center
+            justify-center gap-4 text-sm sm:gap-2"
         >
           <p>
             Made by{" "}

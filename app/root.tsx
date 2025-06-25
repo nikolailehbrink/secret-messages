@@ -1,4 +1,3 @@
-import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
   Link,
   Links,
@@ -6,29 +5,26 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  href,
   isRouteErrorResponse,
-  useRouteError,
-} from "@remix-run/react";
-import { Analytics } from "@vercel/analytics/react";
-import {
+  useLocation,
   type LinksFunction,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  json,
-} from "@vercel/remix";
+} from "react-router";
+import { Analytics } from "@vercel/analytics/react";
 // Supports weights 100-900
 import "@fontsource-variable/inter";
 import interWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 
-import { EnvelopeSimpleOpen } from "@phosphor-icons/react/dist/ssr/EnvelopeSimpleOpen";
-import { ChatCircleDots } from "@phosphor-icons/react/dist/ssr/ChatCircleDots";
-
 import Footer from "./components/Footer";
 import GradientHeading from "./components/GradientHeading";
-import usePageUrl from "./hooks/usePageUrl";
 import { Button } from "./components/ui/button";
 
-import "./tailwind.css";
+import "./app.css";
+import type { Route } from "./+types/root";
+import {
+  ChatCircleDotsIcon,
+  EnvelopeSimpleOpenIcon,
+} from "@phosphor-icons/react";
 
 export const links: LinksFunction = () => [
   {
@@ -41,12 +37,16 @@ export const links: LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/icon.png" },
 ];
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const { origin } = new URL(request.url);
-  return json(origin);
+  return { origin };
 }
 
-export const meta: MetaFunction<typeof loader> = ({ error, data: origin }) => {
+export const meta: Route.MetaFunction = ({ error, data }) => {
+  if (!data) {
+    throw new Error("No loader data.");
+  }
+  const { origin } = data;
   const ogImagePath = `${origin}/og-image.jpg`;
   const title = error
     ? isRouteErrorResponse(error) && error.status === 404
@@ -86,10 +86,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body
-        className="flex min-h-[100dvh] flex-col text-balance bg-gradient-to-br
-          from-rose-500/15 via-sky-500/15 to-fuchsia-500/15"
+        className="flex min-h-[100dvh] flex-col bg-linear-to-br from-rose-500/15
+          via-sky-500/15 to-fuchsia-500/15 text-balance"
       >
-        <section className="flex w-full flex-1 pb-4 pt-16 sm:pt-12 md:pt-24">
+        <section className="flex w-full flex-1 pt-16 pb-4 sm:pt-12 md:pt-24">
           {children}
         </section>
         <ScrollRestoration />
@@ -101,11 +101,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ErrorBoundary() {
-  const pageUrl = usePageUrl();
-  const error = useRouteError();
+export function ErrorBoundary({ error, loaderData }: Route.ErrorBoundaryProps) {
+  if (!loaderData) {
+    throw new Error("No loader data provided for error boundary");
+  }
+  const { origin } = loaderData;
+  const { pathname } = useLocation();
+  const pageUrl = `${origin}${pathname}`;
   const notFound = isRouteErrorResponse(error) && error;
-  captureRemixErrorBoundaryError(error);
   return (
     <div
       className="container flex flex-col items-center justify-center gap-2
@@ -121,20 +124,16 @@ export function ErrorBoundary() {
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
         <Button asChild variant="outline">
-          <Link to="/" prefetch="viewport">
-            <ChatCircleDots
-              size={20}
-              weight="duotone"
-              className="-scale-x-100"
-            />
+          <Link to={href("/")} prefetch="viewport">
+            <ChatCircleDotsIcon size={20} weight="duotone" />
             Create a secret message
           </Link>
         </Button>
         <Button asChild>
           <a
-            href={`mailto:mail@nikolailehbr.ink?subject=Error on ${pageUrl}?body=Hello, I encountered an error on ${pageUrl} and I would like to report it. Here is what I did that caused the error:`}
+            href={`mailto:mail@nikolailehbr.ink?subject=Error on ${pageUrl}&body=Hello, I encountered an error on ${pageUrl} and I would like to report it. Here is what I did that caused the error:`}
           >
-            <EnvelopeSimpleOpen size={20} weight="duotone" />
+            <EnvelopeSimpleOpenIcon size={20} weight="duotone" />
             Report an Issue
           </a>
         </Button>
@@ -143,8 +142,6 @@ export function ErrorBoundary() {
   );
 }
 
-function App() {
+export default function App() {
   return <Outlet />;
 }
-
-export default withSentry(App);

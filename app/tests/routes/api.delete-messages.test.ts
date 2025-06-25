@@ -1,4 +1,4 @@
-import { loader } from "@/routes/api.delete-messages";
+import { loader } from "@/routes/api/delete-messages";
 import { describe, it, expect } from "vitest";
 
 describe("delete-messages loader", () => {

@@ -10,4 +10,4 @@ export const EXPIRATION_TIMES = new Map([
   ["525600", "1 Year"],
 ] as const);
 
-export const EXPIRATION_TIMES_VALUES = EXPIRATION_TIMES.keys();
+export const EXPIRATION_TIMES_VALUES = [...EXPIRATION_TIMES.keys()];

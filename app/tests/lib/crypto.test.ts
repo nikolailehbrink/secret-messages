@@ -35,7 +35,7 @@ describe("Crypto functions", () => {
   });
 
   it("should fail to decrypt with wrong IV", () => {
-    const { iv, encryptedMessage } = encryptText(text, password);
+    const { encryptedMessage } = encryptText(text, password);
     const invalidIv = randomBytes(16).toString("hex");
 
     expect(() => {

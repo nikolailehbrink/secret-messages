@@ -1,5 +1,5 @@
 /** @type {import("prettier").Config} */
-const functions = ["cn", "clsx"];
+const functions = ["cn", "clsx", "cva"];
 const config = {
   tailwindFunctions: functions,
   customFunctions: functions,
@@ -10,6 +10,8 @@ const config = {
     "prettier-plugin-classnames",
     "prettier-plugin-merge",
   ],
+  tailwindStylesheet: "./app/app.css",
+
   semi: true,
   tabWidth: 2,
   singleQuote: false,

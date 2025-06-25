@@ -19,7 +19,7 @@ export async function createMessage(
     expirationDate = createdDate.plus({ minutes: minutesToExpire }).toISO();
   }
 
-  return prisma.message.create({
+  return await prisma.message.create({
     data: {
       encryptedContent: encryptedMessage,
       uuid,
@@ -32,7 +32,7 @@ export async function createMessage(
 }
 
 export async function getMessage(uuid: string) {
-  return prisma.message.findUnique({
+  return await prisma.message.findUnique({
     where: {
       uuid,
     },
@@ -40,7 +40,7 @@ export async function getMessage(uuid: string) {
 }
 
 export async function deleteMessage(uuid: string) {
-  return prisma.message.delete({
+  return await prisma.message.delete({
     where: {
       uuid,
     },
@@ -48,7 +48,7 @@ export async function deleteMessage(uuid: string) {
 }
 
 export async function deleteExpiredOrOneTimeMessages() {
-  return prisma.message.deleteMany({
+  return await prisma.message.deleteMany({
     where: {
       OR: [
         {
@@ -66,7 +66,7 @@ export async function deleteExpiredOrOneTimeMessages() {
 }
 
 export async function markMessageAsViewed(uuid: string) {
-  return prisma.message.update({
+  return await prisma.message.update({
     where: {
       uuid,
     },
@@ -91,7 +91,7 @@ export async function getMessageCount(type: MessageType = "all") {
 }
 
 export async function incrementMessageCount(messageType: MessageType) {
-  return prisma.messageCounter.upsert({
+  return await prisma.messageCounter.upsert({
     where: {
       type: messageType,
     },

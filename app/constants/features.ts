@@ -1,21 +1,23 @@
-import { Detective } from "@phosphor-icons/react/dist/ssr/Detective";
-import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
-import { LinkSimple } from "@phosphor-icons/react/dist/ssr/LinkSimple";
+import {
+  DetectiveIcon,
+  LinkSimpleIcon,
+  LockKeyIcon,
+} from "@phosphor-icons/react";
 
 export const FEATURES = [
   {
     title: "Anonymous",
     description: "No IP addresses or personal information is stored.",
-    icon: Detective,
+    icon: DetectiveIcon,
   },
   {
     title: "Secure",
     description: "Your message is encrypted and protected with a password.",
-    icon: LockKey,
+    icon: LockKeyIcon,
   },
   {
     title: "Shareable",
     description: "Generate a unique link to share your message with others.",
-    icon: LinkSimple,
+    icon: LinkSimpleIcon,
   },
 ];

@@ -1,5 +1,4 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "crons": [
     {
       "path": "/api/delete-messages",

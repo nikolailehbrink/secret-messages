@@ -3,27 +3,32 @@
 
 generator client {
   provider = "prisma-client-js"
+  // TODO: Would love to use https://www.prisma.io/docs/guides/react-router-7#3-integrate-prisma-into-react-router-7 but
+  // there is currently an error on Vercel: Prisma Client could not locate the Query Engine for runtime "rhel-openssl-3.0.x".
+  // This is a workaround to generate the client in the build step.
+  // See https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
+  output   = "../node_modules/@prisma/client-generated"
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling to improve performance and manage database connections efficiently
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling to improve performance and manage database connections efficiently
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection, preferred for local development or debugging
 }
 
 model Message {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  id               Int       @id @default(autoincrement())
+  createdAt        DateTime  @default(now())
   encryptedContent String
-  iv String @unique
-  uuid String @unique
-  isOneTimeMessage Boolean @default(false)
-  expiresAt DateTime?
-  isDecrypted Boolean @default(false)
+  iv               String    @unique
+  uuid             String    @unique
+  isOneTimeMessage Boolean   @default(false)
+  expiresAt        DateTime?
+  isDecrypted      Boolean   @default(false)
 }
 
 model MessageCounter {
-  id Int @id @default(autoincrement())
-  count Int @default(0)
-  type String @unique
+  id    Int    @id @default(autoincrement())
+  count Int    @default(0)
+  type  String @unique
 }

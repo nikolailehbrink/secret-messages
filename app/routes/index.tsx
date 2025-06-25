@@ -1,27 +1,27 @@
 import EncryptForm from "@/components/EncryptForm";
-import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json, redirect, defer } from "@vercel/remix";
-import { Await, useActionData, useLoaderData } from "@remix-run/react";
+import { href, data as json, redirect } from "react-router";
+import { Await } from "react-router";
 import {
   getMessageCount,
   incrementMessageCount,
   createMessage,
 } from "@/.server/message";
-import { z } from "zod";
+import { z } from "zod/v4";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import ErrorOutput from "@/components/ErrorOutput";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
-import { useGSAP, gsap } from "@/lib/gsap";
+import type { Route } from "./+types";
 
 const description =
   "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
 
-export const meta: MetaFunction = ({ matches }) => {
-  const parentMeta = matches.flatMap((match) => match.meta ?? []);
+export const meta: Route.MetaFunction = ({ matches }) => {
+  const parentMeta = matches.flatMap((match) => (match && match.meta) ?? []);
+
   return [
     ...parentMeta,
     {
@@ -49,10 +49,10 @@ export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 export async function loader() {
   const messageCount = getMessageCount("all");
-  return defer({ messageCount });
+  return { messageCount };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const message = formData.get("message");
   const oneTimeMessage = formData.get("one-time-message");
@@ -88,7 +88,7 @@ export async function action({ request }: ActionFunctionArgs) {
       isStandardMessage && incrementMessageCount("standard"),
       incrementMessageCount("all"),
     ]);
-    return redirect(`/${uuid}`);
+    return redirect(href("/:id", { id: uuid }));
   } catch (error) {
     // Handle unique constraint error
     if (
@@ -106,131 +106,38 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function Index() {
-  const { messageCount } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+export default function Index({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
+  const { messageCount } = loaderData;
   const formErrors = actionData?.formErrors;
   const uuidError = actionData?.uuidError;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const descriptionRef = useRef<HTMLParagraphElement>(null);
-  const messageCounterRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      const timeline = gsap.timeline();
-      timeline
-        .to(headingRef.current, {
-          scale: 1,
-          autoAlpha: 1,
-          duration: 0.25,
-        })
-        .fromTo(
-          headingRef.current,
-          {
-            y: 64,
-          },
-          {
-            y: 0,
-          },
-          "-=0.25",
-        )
-        .fromTo(
-          descriptionRef.current,
-          { y: 48 },
-          {
-            autoAlpha: 1,
-            y: 0,
-          },
-          "-=0.5",
-        )
-        .to(
-          messageCounterRef.current,
-          {
-            scale: 1,
-            ease: "elastic.out(0.8,0.3)",
-          },
-          "-=0.25",
-        )
-        .fromTo(
-          formRef.current,
-          {
-            y: 64,
-          },
-          {
-            autoAlpha: 1,
-            y: 0,
-          },
-          "-=0.5",
-        )
-        .from(".how-it-works > *, .feature-item", {
-          stagger: 0.25,
-          autoAlpha: 0,
-          y: 64,
-        })
-        .add(function generateCypherTimeline() {
-          const cypherTimeline = gsap.timeline();
-          cypherTimeline
-            .to(headingRef.current, {
-              duration: 2,
-              text: {
-                value: "****** ********",
-                newClass: "text-neutral-400",
-              },
-              yoyo: true,
-              repeat: 1,
-              repeatDelay: 1,
-              ease: "none",
-            })
-            .to(descriptionRef.current, {
-              delay: 1,
-              duration: 8,
-              text: {
-                value: description,
-                newClass: "text-black/10",
-              },
-              yoyo: true,
-              repeat: 1,
-              repeatDelay: 1,
-              ease: "none",
-            })
-            .repeat(-1)
-            .repeatDelay(2);
-        }, "+=0.5");
-    },
-    { scope: containerRef },
-  );
 
   return (
     <div
-      ref={containerRef}
       className="container flex h-full flex-col items-center justify-center
         space-y-12 px-4 text-center md:space-y-16 md:px-6"
     >
-      <div>
+      <div className="space-y-2">
         <GradientHeading
-          ref={headingRef}
-          className="scale-50 text-4xl/snug opacity-0 md:text-5xl/snug
-            lg:text-6xl/snug"
+          className="text-4xl/snug text-shadow-lg md:text-5xl/snug"
         >
           Secret Messages
         </GradientHeading>
         <p
-          ref={descriptionRef}
-          className="invisible mx-auto max-w-screen-sm text-neutral-700
-            dark:text-neutral-400 md:text-xl"
+          className="mx-auto max-w-screen-sm text-muted-foreground md:text-xl
+            dark:text-neutral-400"
         >
           {description}
         </p>
         <GradientContainer
-          className="mt-4 inline-flex scale-0"
+          className="mt-4 inline-flex rounded-xl shadow-lg shadow-sky-700/15"
           rotate
-          ref={messageCounterRef}
         >
           <div className="rounded-md bg-white/40 backdrop-blur-md">
             <p
-              className="rounded-md bg-gradient-to-br from-rose-500 via-sky-500
+              className="rounded-md bg-linear-to-br from-rose-500 via-sky-500
                 to-fuchsia-500 bg-clip-text p-1 px-2 text-sm text-black/40
                 backdrop-blur-md"
             >
@@ -253,12 +160,12 @@ export default function Index() {
           </div>
         </GradientContainer>
       </div>
-      <div className="w-full max-w-md opacity-0" ref={formRef}>
+      <div className="w-full max-w-md">
         <EncryptForm errors={formErrors} />
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
-        <div className="how-it-works flex flex-col items-center gap-3">
+        <div className="how-it-works flex flex-col items-center gap-4">
           <GradientContainer className="inline-flex">
             <div
               className="rounded-md bg-white/50 p-1 px-2 text-sm
@@ -269,15 +176,15 @@ export default function Index() {
           </GradientContainer>
 
           <GradientHeading
-            className="text-3xl font-bold tracking-tighter sm:text-4xl
-              lg:text-4xl"
+            className="text-3xl font-bold tracking-tighter text-shadow-sm
+              sm:text-4xl lg:text-4xl"
             level="2"
           >
             Secure and Convenient
           </GradientHeading>
           <p
-            className="max-w-screen-sm text-neutral-600 dark:text-neutral-400
-              md:text-xl/relaxed lg:text-base/relaxed xl:text-lg/relaxed"
+            className="max-w-screen-sm text-muted-foreground md:text-xl/relaxed
+              lg:text-base/relaxed xl:text-lg/relaxed dark:text-neutral-400"
           >
             Our secret message app allows you to create a unique link and
             password to share confidential information securely. Your message is
@@ -286,34 +193,33 @@ export default function Index() {
           </p>
         </div>
         <div
-          className="mt-6 grid max-w-5xl auto-rows-fr grid-cols-1
-            justify-items-center gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 grid max-w-5xl grid-cols-1 justify-items-center gap-4
+            md:grid-cols-4 lg:grid-cols-3"
         >
-          {useMemo(
-            () =>
-              FEATURES.map(({ icon: Icon, title, description }, index) => {
-                return (
-                  <GradientContainer
-                    className="feature-item invisible w-full max-w-md"
-                    key={title}
-                    rotate={index % 2 === 0}
-                  >
-                    <div
-                      className="relative flex h-full flex-col items-center
-                        justify-center space-y-1 rounded-md bg-white/50 p-4
-                        text-neutral-700 backdrop-blur-2xl"
-                    >
-                      <Icon weight="duotone" size={32} />
-                      <GradientHeading level="3" className="text-xl font-bold">
-                        {title}
-                      </GradientHeading>
-                      <p>{description}</p>
-                    </div>
-                  </GradientContainer>
-                );
-              }),
-            [FEATURES],
-          )}
+          {FEATURES.map(({ icon: Icon, title, description }, index) => {
+            return (
+              <GradientContainer
+                className="w-full max-w-md rounded-lg shadow-md
+                  shadow-sky-700/15 md:max-lg:col-span-2
+                  md:max-lg:last:col-start-2"
+                key={title}
+                rotate={index % 2 === 0}
+              >
+                <div
+                  className="relative flex h-full flex-col items-center
+                    justify-center space-y-1 rounded-md bg-white/50 p-4
+                    backdrop-blur-2xl"
+                >
+                  <Icon weight="duotone" size={32} />
+                  <GradientHeading level="3" className="text-xl font-bold">
+                    {title}
+                  </GradientHeading>
+                  <p className="text-muted-foreground">{description}</p>
+                </div>
+              </GradientContainer>
+            );
+          })}
+          ,
         </div>
       </section>
     </div>

@@ -1,14 +1,15 @@
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react";
 import { Button } from "./ui/button";
-import { Eye } from "@phosphor-icons/react/dist/ssr/Eye";
-import { EyeSlash } from "@phosphor-icons/react/dist/ssr/EyeSlash";
+
 import { useEffect, useState } from "react";
 
-type Props = { passwordRef: React.RefObject<HTMLInputElement> };
+type Props = { passwordRef: React.RefObject<HTMLInputElement | null> };
 
 export default function PasswordVisibilityButton({ passwordRef }: Props) {
   const [passwordVisibility, setPasswordVisibility] = useState(false);
 
   useEffect(() => {
+    if (!passwordRef) return;
     if (passwordRef.current) {
       if (passwordVisibility) {
         passwordRef.current.type = "text";
@@ -19,16 +20,16 @@ export default function PasswordVisibilityButton({ passwordRef }: Props) {
   }, [passwordVisibility, passwordRef]);
   return (
     <Button
-      className="absolute bottom-1 right-1 size-8"
+      className="absolute right-1 bottom-1 size-8"
       size="icon"
       variant="ghost"
       type="button"
       onClick={() => setPasswordVisibility(!passwordVisibility)}
     >
       {passwordVisibility ? (
-        <EyeSlash size={20} weight="duotone" />
+        <EyeSlashIcon size={20} weight="duotone" />
       ) : (
-        <Eye size={20} weight="duotone" />
+        <EyeIcon size={20} weight="duotone" />
       )}
       <span className="sr-only">Toggle password visibility</span>
     </Button>

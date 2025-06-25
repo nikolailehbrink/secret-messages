@@ -1,9 +1,11 @@
-import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
-import { Clipboard } from "@phosphor-icons/react/dist/ssr/Clipboard";
-import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
+import {
+  CheckCircleIcon,
+  ClipboardIcon,
+  XCircleIcon,
+} from "@phosphor-icons/react";
 
 export const CLIPBOARD_ICONS = new Map([
-  ["default", Clipboard],
-  ["success", CheckCircle],
-  ["error", XCircle],
+  ["default", ClipboardIcon],
+  ["success", CheckCircleIcon],
+  ["error", XCircleIcon],
 ] as const);

@@ -1,21 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client-generated";
 
-// https://www.prisma.io/blog/fullstack-remix-prisma-mongodb-2-ZTmOy58p4re8#create-an-instance-of-prismaclient
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient;
+};
 
-let prisma: PrismaClient;
-declare global {
-  var __db: PrismaClient | undefined;
-}
+const prisma = globalForPrisma.prisma || new PrismaClient();
 
-if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
-  prisma.$connect();
-} else {
-  if (!global.__db) {
-    global.__db = new PrismaClient();
-    global.__db.$connect();
-  }
-  prisma = global.__db;
-}
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export { prisma };

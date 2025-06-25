@@ -1,17 +1,9 @@
 .DS_Store
-node_modules
+/node_modules/
 
-/.cache
-/build
 .env
 
-/dist
-.prisma
-/prisma/*.db
+# React Router
+/.react-router/
+/build/
 .vercel
-
-# Sentry Config File
-.sentryclirc
-
-# Sentry Config File
-.env.sentry-build-plugin

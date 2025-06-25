@@ -1,7 +1,7 @@
 import { deleteExpiredOrOneTimeMessages } from "@/.server/message";
-import type { LoaderFunctionArgs } from "@vercel/remix";
+import type { Route } from "./+types/delete-messages";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const authorizationHeader = request.headers.get("authorization");
   // https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs
   if (

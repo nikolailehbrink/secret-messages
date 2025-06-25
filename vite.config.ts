@@ -1,37 +1,31 @@
-import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { vitePlugin as remix } from "@remix-run/dev";
-import { installGlobals } from "@remix-run/node";
+/// <reference types="vitest/config" />
+
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { vercelPreset } from "@vercel/remix/vite";
+import devtoolsJson from "vite-plugin-devtools-json";
 
-// This installs globals such as "fetch", "Response", "Request" and "Headers". See: https://remix.run/docs/en/main/other-api/node
-installGlobals();
-
-export default defineConfig(() => {
-  // Check if the code is not running on Vercel
-  if (!process.env.VERCEL) {
-    return {
-      test: {
-        include: ["**/*.test.ts", "**/*.test.tsx"],
-      },
-      plugins: [remix(), tsconfigPaths()],
-    };
-  }
-
-  return {
-    plugins: [
-      remix({
-        presets: [vercelPreset()],
-      }),
-      tsconfigPaths(),
-      sentryVitePlugin({
-        org: "nikolailehbrink",
-        project: "secret-messages",
-      }),
-    ],
-    build: {
-      sourcemap: true,
+export default defineConfig(({ command }) => ({
+  server: {
+    open: true,
+    host: true,
+  },
+  test: {
+    include: ["**/*.test.ts", "**/*.test.tsx"],
+  },
+  // https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
+  ssr: {
+    noExternal: command === "build" ? true : undefined,
+    // https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
+    optimizeDeps: {
+      include: ["@prisma/client-generated"],
     },
-  };
-});
+  },
+  build: {
+    rollupOptions: {
+      external: ["@prisma/client-generated"],
+    },
+  },
+  plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), devtoolsJson()],
+}));

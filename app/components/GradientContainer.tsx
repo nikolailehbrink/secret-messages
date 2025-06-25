@@ -17,17 +17,17 @@ const GradientContainer = forwardRef(function GradientContainer(
       {blur && (
         <div
           className={cn(
-            `absolute inset-0 rounded-lg bg-gradient-to-bl from-rose-500
+            `absolute inset-0 rounded-lg bg-linear-to-bl from-rose-500
             via-sky-500 to-fuchsia-500 opacity-15 blur-md`,
-            rotate && "bg-gradient-to-tl sm:bg-gradient-to-br",
+            rotate && "bg-linear-to-tl sm:bg-linear-to-br",
           )}
         ></div>
       )}
       <div
         className={cn(
-          `absolute -inset-[2px] rounded-lg bg-gradient-to-bl from-rose-500
+          `absolute -inset-[2px] rounded-lg bg-linear-to-bl from-rose-500
           via-sky-500 to-fuchsia-500 opacity-20`,
-          rotate && "bg-gradient-to-tl sm:bg-gradient-to-br",
+          rotate && "bg-linear-to-tl sm:bg-linear-to-br",
         )}
       ></div>
 

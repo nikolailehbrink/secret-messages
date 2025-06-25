@@ -15,7 +15,7 @@ const GradientHeading = forwardRef(function GradientHeading(
   return (
     <HeadingLevel
       className={cn(
-        `bg-gradient-to-br from-neutral-950 to-neutral-600 bg-clip-text text-3xl
+        `bg-linear-to-br from-neutral-950 to-neutral-600 bg-clip-text text-3xl
         font-bold tracking-tighter text-transparent`,
         className,
       )}

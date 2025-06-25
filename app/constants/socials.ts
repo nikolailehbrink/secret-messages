@@ -1,21 +1,23 @@
-import { GithubLogo } from "@phosphor-icons/react/dist/ssr/GithubLogo";
-import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr/LinkedinLogo";
-import { XLogo } from "@phosphor-icons/react/dist/ssr/XLogo";
+import {
+  GithubLogoIcon,
+  LinkedinLogoIcon,
+  XLogoIcon,
+} from "@phosphor-icons/react";
 
 export const SOCIALS = [
   {
     name: "Github",
     url: "https://github.com/nikolailehbrink",
-    icon: GithubLogo,
+    icon: GithubLogoIcon,
   },
   {
     name: "LinkedIn",
     url: "https://www.linkedin.com/in/nikolailehbrink/",
-    icon: LinkedinLogo,
+    icon: LinkedinLogoIcon,
   },
   {
     name: "X",
     url: "https://twitter.com/nikolailehbrink",
-    icon: XLogo,
+    icon: XLogoIcon,
   },
 ];

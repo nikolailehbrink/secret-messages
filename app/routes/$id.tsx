@@ -1,31 +1,27 @@
 import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  json,
-} from "@vercel/remix";
-import {
+  href,
+  data as json,
   Link,
   type ShouldRevalidateFunction,
   useFetcher,
-  useLoaderData,
-} from "@remix-run/react";
+} from "react-router";
 import {
   deleteMessage,
   getMessage,
   markMessageAsViewed,
 } from "@/.server/message";
-import invariant from "tiny-invariant";
 import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
 import GradientContainer from "@/components/GradientContainer";
-import { LockKey } from "@phosphor-icons/react/dist/ssr/LockKey";
-import { LockKeyOpen } from "@phosphor-icons/react/dist/ssr/LockKeyOpen";
-import { CircleNotch } from "@phosphor-icons/react/dist/ssr/CircleNotch";
-import { XCircle } from "@phosphor-icons/react/dist/ssr/XCircle";
-import { NumberCircleOne } from "@phosphor-icons/react/dist/ssr/NumberCircleOne";
-import { ClockCountdown } from "@phosphor-icons/react/dist/ssr/ClockCountdown";
+import {
+  CircleNotchIcon,
+  ClockCountdownIcon,
+  LockKeyIcon,
+  LockKeyOpenIcon,
+  NumberCircleOneIcon,
+  XCircleIcon,
+} from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
 import { Label } from "@/components/ui/label";
@@ -33,12 +29,13 @@ import { Input } from "@/components/ui/input";
 import { dateTime } from "@/lib/helper";
 import { messageNotFoundResponse } from "@/lib/response";
 import { CLIPBOARD_ICONS } from "@/constants/clipboard-icons";
+import type { Route } from "./+types/$id";
 
 type ClipboardStatus = "default" | "success" | "error";
 
-export const meta: MetaFunction = ({ matches }) => {
+export const meta: Route.MetaFunction = ({ matches }) => {
   const parentMeta = matches
-    .flatMap((match) => match.meta ?? [])
+    .flatMap((match) => (match && match.meta) ?? [])
     .filter((meta) => !("title" in meta));
 
   const description = "Access it now using the separate send password.";
@@ -73,16 +70,16 @@ export const meta: MetaFunction = ({ matches }) => {
   ];
 };
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
-  invariant(params.uuid, "No uuid provided.");
-  const message = await getMessage(params.uuid);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const { id } = params;
+  const message = await getMessage(id);
   const isMessageExpired = message?.expiresAt && message.expiresAt < new Date();
   const isOneTimeMessageAndViewed =
     message?.isOneTimeMessage && message?.isDecrypted;
 
   if (isMessageExpired || isOneTimeMessageAndViewed) {
     try {
-      await deleteMessage(params.uuid);
+      await deleteMessage(id);
     } catch (error) {
       console.error(error);
     }
@@ -93,7 +90,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
   const url = request.url;
 
-  return json(url);
+  return { url };
 }
 
 // Prevents Remix from revalidating the loader after the message is successfully decrypted in the action function.
@@ -112,8 +109,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   return defaultShouldRevalidate;
 };
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  invariant(params.uuid, "No uuid provided");
+export async function action({ request, params }: Route.ActionArgs) {
+  const { id } = params;
   const formData = await request.formData();
   const password = formData.get("password");
 
@@ -127,7 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  const message = await getMessage(params.uuid);
+  const message = await getMessage(id);
 
   if (!message) {
     throw messageNotFoundResponse();
@@ -140,7 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const decryptedMessage = decryptText(encryptedContent, iv, password);
     if (!decryptedMessage) throw new Error("Failed to decrypt message.");
 
-    await markMessageAsViewed(params.uuid);
+    await markMessageAsViewed(id);
 
     return json({
       decryptedMessage,
@@ -162,14 +159,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export default function $uuid() {
-  const url = useLoaderData<typeof loader>();
+export default function Message({ loaderData }: Route.ComponentProps) {
+  const { url } = loaderData;
   const fetcher = useFetcher<typeof action>();
-  const passwordRef = useRef<HTMLInputElement>(null!);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const { data, state } = fetcher;
 
-  const submitting = state === "submitting";
+  const isLoading = state !== "idle";
 
   const error = data?.error;
   const decryptedMessage = data?.decryptedMessage;
@@ -182,7 +179,7 @@ export default function $uuid() {
 
   const [clipboardStatus, setClipboardStatus] =
     useState<ClipboardStatus>("default");
-  const ClipboardIcon = CLIPBOARD_ICONS.get(clipboardStatus) ?? XCircle;
+  const ClipboardIcon = CLIPBOARD_ICONS.get(clipboardStatus) ?? XCircleIcon;
 
   return !decryptedMessage ? (
     <div
@@ -213,15 +210,15 @@ export default function $uuid() {
             <PasswordVisibilityButton passwordRef={passwordRef} />
           </div>
         </div>
-        <Button disabled={submitting} className="w-full">
-          {submitting ? (
+        <Button disabled={isLoading} className="w-full">
+          {isLoading ? (
             <>
-              <CircleNotch className="animate-spin" size={20} />
+              <CircleNotchIcon className="animate-spin" size={20} />
               Decrypt message...
             </>
           ) : (
             <>
-              <LockKeyOpen size={24} weight="duotone" />
+              <LockKeyOpenIcon size={24} weight="duotone" />
               Show message
             </>
           )}
@@ -232,7 +229,7 @@ export default function $uuid() {
           text-sm text-muted-foreground"
       >
         <hr
-          className="h-px min-w-3 shrink-0 border-none bg-gradient-to-r
+          className="h-px min-w-3 shrink-0 border-none bg-linear-to-r
             from-transparent to-black/15"
         />
         <p className="max-w-56 text-center">
@@ -240,8 +237,8 @@ export default function $uuid() {
           <noscript>from the adress bar</noscript>
         </p>
         <hr
-          className="h-px min-w-3 shrink-0 rotate-180 border-none
-            bg-gradient-to-r from-transparent to-black/15"
+          className="h-px min-w-3 shrink-0 rotate-180 border-none bg-linear-to-r
+            from-transparent to-black/15"
         />
       </div>
       <div className="flex gap-2">
@@ -284,9 +281,13 @@ export default function $uuid() {
     <div className="container h-full max-w-xl space-y-2 self-center">
       {data?.isOneTimeMessage ? (
         <div className="flex items-center gap-1 text-rose-500">
-          <NumberCircleOne className="shrink-0" weight="duotone" size={28} />
+          <NumberCircleOneIcon
+            className="shrink-0"
+            weight="duotone"
+            size={28}
+          />
 
-          <p className="text-pretty text-xs">
+          <p className="text-xs text-pretty">
             <span className="text-sm font-bold">One-Time Message:</span> <br />
             This message will become unavailable after closing or refreshing the
             tab.
@@ -295,9 +296,9 @@ export default function $uuid() {
       ) : null}
       {!data?.isOneTimeMessage && expirationDate !== null ? (
         <div className="flex items-center gap-1 text-sky-500">
-          <ClockCountdown className="shrink-0" size={28} weight="duotone" />
+          <ClockCountdownIcon className="shrink-0" size={28} weight="duotone" />
 
-          <p className="text-pretty text-xs">
+          <p className="text-xs text-pretty">
             <span className="text-sm font-bold">Expiring message:</span>
             <br /> This message will be available until {expirationDate}.
           </p>
@@ -312,10 +313,10 @@ export default function $uuid() {
       <p className="text-xs text-muted-foreground">{creationDate}</p>
       <Link
         className="group !mt-4 inline-flex gap-1 text-sm"
-        to="/"
+        to={href("/")}
         prefetch="viewport"
       >
-        <LockKey size={20} weight="duotone" />
+        <LockKeyIcon size={20} weight="duotone" />
         <span className="group-hover:underline group-hover:underline-offset-4">
           Create your own secret message
         </span>
