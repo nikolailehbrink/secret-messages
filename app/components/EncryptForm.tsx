@@ -45,7 +45,7 @@ export default function EncryptForm({ errors }: Props) {
       method="post"
       action="?index"
       className="flex flex-col gap-4 rounded-lg bg-white/50 p-4 text-left
-        shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
+        shadow-lg ring-2 shadow-sky-700/20 ring-neutral-50 backdrop-blur-md"
     >
       <div className="space-y-2">
         <div
@@ -79,7 +79,7 @@ export default function EncryptForm({ errors }: Props) {
             <ErrorOutput key={index} message={error} />
           ))}
         <Textarea
-          className="min-h-[120px]"
+          className="min-h-24"
           id="message"
           name="message"
           placeholder="Type your secret message here..."

@@ -4,7 +4,7 @@ import { SOCIALS } from "@/constants/socials";
 
 export default function Footer() {
   return (
-    <footer className="bg-white/5 backdrop-blur-3xl sm:sticky sm:bottom-0">
+    <footer className="z-20 bg-white/5 backdrop-blur-3xl sm:sticky sm:bottom-0">
       <section
         className="container flex items-center justify-between gap-4 py-4
           max-sm:flex-col"
@@ -32,8 +32,8 @@ export default function Footer() {
           </div>
         </Link>
         <div
-          className="text-muted-foreground flex flex-wrap items-center
-            justify-center gap-4 text-sm sm:gap-2"
+          className="flex flex-wrap items-center justify-center gap-4 text-sm
+            text-muted-foreground sm:gap-2"
         >
           <p>
             Made by{" "}

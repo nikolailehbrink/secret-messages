@@ -116,17 +116,17 @@ export default function Index({
 
   return (
     <div
-      className="container flex h-full flex-col items-center justify-center
-        space-y-12 px-4 text-center md:space-y-16 md:px-6"
+      className="container flex h-full flex-col justify-center space-y-12 px-4
+        sm:items-center sm:text-center md:space-y-16 md:px-6"
     >
       <div className="space-y-2">
         <GradientHeading
-          className="text-4xl/snug text-shadow-lg md:text-5xl/snug"
+          className="text-4xl/snug text-shadow-md md:text-5xl/snug"
         >
           Secret Messages
         </GradientHeading>
         <p
-          className="mx-auto max-w-screen-sm text-muted-foreground md:text-xl
+          className="mx-auto max-w-screen-sm text-black/50 md:text-xl
             dark:text-neutral-400"
         >
           {description}
@@ -160,13 +160,13 @@ export default function Index({
           </div>
         </GradientContainer>
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full md:max-w-lg">
         <EncryptForm errors={formErrors} />
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
-        <div className="how-it-works flex flex-col items-center gap-4">
-          <GradientContainer className="inline-flex">
+        <div className="flex flex-col items-start gap-4 md:items-center">
+          <GradientContainer className="inline-flex shadow-lg shadow-sky-700/15">
             <div
               className="rounded-md bg-white/50 p-1 px-2 text-sm
                 backdrop-blur-md"
@@ -183,7 +183,7 @@ export default function Index({
             Secure and Convenient
           </GradientHeading>
           <p
-            className="max-w-screen-sm text-muted-foreground md:text-xl/relaxed
+            className="max-w-screen-sm text-black/50 md:text-xl/relaxed
               lg:text-base/relaxed xl:text-lg/relaxed dark:text-neutral-400"
           >
             Our secret message app allows you to create a unique link and
@@ -193,28 +193,30 @@ export default function Index({
           </p>
         </div>
         <div
-          className="mt-6 grid max-w-5xl grid-cols-1 justify-items-center gap-4
+          className="mt-6 grid grid-cols-1 gap-4 sm:justify-items-center
             md:grid-cols-4 lg:grid-cols-3"
         >
           {FEATURES.map(({ icon: Icon, title, description }, index) => {
             return (
               <GradientContainer
-                className="w-full max-w-md rounded-lg shadow-md
-                  shadow-sky-700/15 md:max-lg:col-span-2
-                  md:max-lg:last:col-start-2"
+                className="w-full rounded-lg shadow-md shadow-sky-700/15
+                  md:max-w-md md:max-lg:col-span-2 md:max-lg:last:col-start-2"
                 key={title}
                 rotate={index % 2 === 0}
               >
                 <div
                   className="relative flex h-full flex-col items-center
                     justify-center space-y-1 rounded-md bg-white/50 p-4
-                    backdrop-blur-2xl"
+                    text-center backdrop-blur-2xl"
                 >
-                  <Icon weight="duotone" size={32} />
-                  <GradientHeading level="3" className="text-xl font-bold">
+                  <Icon weight="duotone" className="drop-shadow-md" size={32} />
+                  <GradientHeading
+                    level="3"
+                    className="text-xl font-bold text-shadow-xs"
+                  >
                     {title}
                   </GradientHeading>
-                  <p className="text-muted-foreground">{description}</p>
+                  <p className="text-black/50">{description}</p>
                 </div>
               </GradientContainer>
             );

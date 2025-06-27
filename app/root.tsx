@@ -86,14 +86,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body
-        className="flex min-h-[100dvh] flex-col bg-linear-to-br from-rose-500/15
-          via-sky-500/15 to-fuchsia-500/15 text-balance"
+        className="relative flex min-h-[100dvh] flex-col bg-linear-to-br
+          from-rose-500/20 via-sky-500/20 to-fuchsia-500/15 text-balance
+          selection:bg-sky-500 selection:text-white"
       >
-        <section className="flex w-full flex-1 pt-16 pb-4 sm:pt-12 md:pt-24">
         <div
           className="paper mask-from-80% absolute size-full mask-b-from-75%
             mask-radial-from-50% mask-radial-to-85%"
         ></div>
+        <section className="z-10 flex w-full flex-1 pt-8 pb-4 sm:pt-12 md:pt-24">
           {children}
         </section>
         <ScrollRestoration />
@@ -121,13 +122,13 @@ export function ErrorBoundary({ error, loaderData }: Route.ErrorBoundaryProps) {
       <GradientHeading level="1" className="text-4xl/snug">
         {notFound ? notFound.statusText : "Oops! An error occurred"}
       </GradientHeading>
-      <p className="max-w-prose text-muted-foreground">
+      <p className="max-w-prose text-black/50">
         {notFound
           ? notFound.data
           : "Please attempt your request again later. Should the issue persist, kindly report it to assist in resolving the matter promptly. Thank you for your cooperation."}
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
-        <Button asChild variant="outline">
+        <Button asChild variant="secondary">
           <Link to={href("/")} prefetch="viewport">
             <ChatCircleDotsIcon size={20} weight="duotone" />
             Create a secret message

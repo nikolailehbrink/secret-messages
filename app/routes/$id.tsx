@@ -189,7 +189,8 @@ export default function Message({ loaderData }: Route.ComponentProps) {
       <fetcher.Form
         id="form"
         method="post"
-        className="flex w-full max-w-sm flex-col gap-4"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white/50
+          p-4 text-left shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
       >
         <div className="relative space-y-2">
           <Label className="block text-left" htmlFor="password">
@@ -247,7 +248,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             className="relative flex h-full gap-2 rounded-md bg-white/50 p-1
               px-2 text-sm text-neutral-700 backdrop-blur-2xl"
           >
-            <p className="line-clamp-1 self-center">{url}</p>
+            <p className="line-clamp-1 self-center select-all">{url}</p>
           </div>
         </GradientContainer>
         <GradientContainer className="inline-flex self-start">
@@ -278,49 +279,63 @@ export default function Message({ loaderData }: Route.ComponentProps) {
       </div>
     </div>
   ) : (
-    <div className="container h-full max-w-xl space-y-2 self-center">
-      {data?.isOneTimeMessage ? (
-        <div className="flex items-center gap-1 text-rose-500">
-          <NumberCircleOneIcon
-            className="shrink-0"
-            weight="duotone"
-            size={28}
-          />
-
-          <p className="text-xs text-pretty">
-            <span className="text-sm font-bold">One-Time Message:</span> <br />
-            This message will become unavailable after closing or refreshing the
-            tab.
-          </p>
-        </div>
-      ) : null}
-      {!data?.isOneTimeMessage && expirationDate !== null ? (
-        <div className="flex items-center gap-1 text-sky-500">
-          <ClockCountdownIcon className="shrink-0" size={28} weight="duotone" />
-
-          <p className="text-xs text-pretty">
-            <span className="text-sm font-bold">Expiring message:</span>
-            <br /> This message will be available until {expirationDate}.
-          </p>
-        </div>
-      ) : null}
-      <p
-        className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
-          backdrop-blur-xl"
+    <div className="container flex items-center gap-y-3">
+      <div
+        className="mx-auto flex w-full max-w-xl flex-col gap-3 rounded-lg
+          bg-white/50 p-4 shadow-lg ring-2 shadow-sky-700/20 ring-neutral-50
+          backdrop-blur-md"
       >
-        {decryptedMessage}
-      </p>
-      <p className="text-xs text-muted-foreground">{creationDate}</p>
-      <Link
-        className="group !mt-4 inline-flex gap-1 text-sm"
-        to={href("/")}
-        prefetch="viewport"
-      >
-        <LockKeyIcon size={20} weight="duotone" />
-        <span className="group-hover:underline group-hover:underline-offset-4">
-          Create your own secret message
-        </span>
-      </Link>
+        {data?.isOneTimeMessage ? (
+          <div
+            className="flex gap-1 rounded-lg border border-rose-300 bg-rose-200
+              p-3 text-sm text-rose-700"
+          >
+            <NumberCircleOneIcon
+              className="shrink-0"
+              weight="duotone"
+              size={20}
+            />
+            <div className="text-pretty">
+              <p className="font-bold">One-Time Message:</p>
+              <p className="text-xs">
+                This message will become unavailable after closing or refreshing
+                the tab.
+              </p>
+            </div>
+          </div>
+        ) : expirationDate !== null ? (
+          <div
+            className="flex gap-1 rounded-lg border border-sky-300 bg-sky-200
+              p-3 text-sm text-sky-700"
+          >
+            <ClockCountdownIcon
+              className="shrink-0"
+              size={20}
+              weight="duotone"
+            />
+            <div className="text-pretty">
+              <p className="font-bold">Expiring message:</p>
+              <p className="text-xs">
+                This message will be available until{" "}
+                <strong> {expirationDate}</strong>.
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <p
+          className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
+            backdrop-blur-xl"
+        >
+          {decryptedMessage}
+        </p>
+        <p className="text-xs text-muted-foreground">{creationDate}</p>
+        <Button asChild className="mt-2">
+          <Link to={href("/")} prefetch="viewport">
+            <LockKeyIcon size={20} weight="duotone" />
+            Create your own secret message
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
