@@ -90,6 +90,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           via-sky-500/15 to-fuchsia-500/15 text-balance"
       >
         <section className="flex w-full flex-1 pt-16 pb-4 sm:pt-12 md:pt-24">
+        <div
+          className="paper mask-from-80% absolute size-full mask-b-from-75%
+            mask-radial-from-50% mask-radial-to-85%"
+        ></div>
           {children}
         </section>
         <ScrollRestoration />
