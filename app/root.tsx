@@ -8,7 +8,6 @@ import {
   href,
   isRouteErrorResponse,
   useLocation,
-  type LinksFunction,
 } from "react-router";
 import { Analytics } from "@vercel/analytics/react";
 // Supports weights 100-900
@@ -26,7 +25,7 @@ import {
   EnvelopeSimpleOpenIcon,
 } from "@phosphor-icons/react";
 
-export const links: LinksFunction = () => [
+export const links: Route.LinksFunction = () => [
   {
     rel: "preload",
     as: "font",
