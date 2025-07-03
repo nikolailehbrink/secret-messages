@@ -3,6 +3,17 @@
   "name": "secret-messages",
   "version": "1.0.0",
   "type": "module",
+  "description": "Share confidential messages securely with anyone.",
+  "homepage": "https://www.secretmessag.es/",
+  "bugs": {
+    "url": "https://github.com/nikolailehbrink/secret-messages/issues",
+    "email": "mail@nikolailehbr.ink"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikolailehbrink/secret-messages+git"
+  },
+  "author": "Nikolai Lehbrink <mail@nikolailehbr.ink> (https://www.nikolailehbr.ink/)",
   "scripts": {
     "postinstall": "prisma generate",
     "build": "react-router build",
