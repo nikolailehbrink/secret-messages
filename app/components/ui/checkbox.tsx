@@ -18,7 +18,13 @@ function Checkbox({
         disabled:opacity-50 aria-invalid:border-destructive
         aria-invalid:ring-destructive/20 data-[state=checked]:border-primary
         data-[state=checked]:bg-primary
-        data-[state=checked]:text-primary-foreground dark:bg-input/30
+        data-[state=checked]:text-primary-foreground
+        data-[state=checked]:inset-shadow-2xs
+        data-[state=checked]:inset-shadow-neutral-600
+        data-[state=checked]:before:absolute data-[state=checked]:before:inset-0
+        data-[state=checked]:before:bg-linear-to-b
+        data-[state=checked]:before:from-white/20
+        data-[state=checked]:before:to-transparent dark:bg-input/30
         dark:aria-invalid:ring-destructive/40
         dark:data-[state=checked]:bg-primary`,
         className,

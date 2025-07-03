@@ -20,7 +20,7 @@ export default function PasswordVisibilityButton({ passwordRef }: Props) {
   }, [passwordVisibility, passwordRef]);
   return (
     <Button
-      className="absolute right-1 bottom-1 size-8"
+      className="absolute right-1 bottom-1 size-8 rounded-sm"
       size="icon"
       variant="ghost"
       type="button"
