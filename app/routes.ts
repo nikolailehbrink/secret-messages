@@ -6,7 +6,7 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  index("./routes/index.tsx"),
+  index("./routes/home.tsx"),
   route(":id", "./routes/$id.tsx"),
   ...prefix("api", [
     route("delete-messages", "./routes/api/delete-messages.ts"),
