@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@conform-to/react':
+        specifier: ^1.8.0
+        version: 1.8.0(react@19.1.0)
+      '@conform-to/zod':
+        specifier: ^1.8.0
+        version: 1.8.0(zod@3.25.67)
       '@fontsource-variable/inter':
         specifier: ^5.2.6
         version: 5.2.6
@@ -290,6 +296,19 @@ packages:
   '@babel/types@7.27.6':
     resolution: {integrity: sha512-ETyHEk2VHHvl9b9jZP5IHPavHYk57EhanlRRuae9XCpb/j5bDCbPPMOBfCWhnl/7EDJz0jEMCi/RhccCE8r1+Q==}
     engines: {node: '>=6.9.0'}
+
+  '@conform-to/dom@1.8.0':
+    resolution: {integrity: sha512-twBp7kcY/MGRl6a3EBGpLzf0ZIFOFpRVw0DX8tyV6GJeQ02Qh8IlRPjO2lzM0olY1sFTw/2Q0K+DLAYqwHoiSg==}
+
+  '@conform-to/react@1.8.0':
+    resolution: {integrity: sha512-SxHzGVwxIr5k305T9tnzoBhl3bznOx4sVHWxuIjCbUb4cBlcY4V2t+FxwEipIV4b96fFYQhC8lU3vhfVf5PkBQ==}
+    peerDependencies:
+      react: '>=18'
+
+  '@conform-to/zod@1.8.0':
+    resolution: {integrity: sha512-3ntmKIt5i3Nx3NygUfIORKeOrWWdzYPV/Qp+7jPGjcAq9B04XCnvNs6w86oNhmsLzTDyVR5YEL8ZhlR5DjSS/g==}
+    peerDependencies:
+      zod: ^3.21.0
 
   '@esbuild/aix-ppc64@0.25.5':
     resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
@@ -3527,6 +3546,18 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
+
+  '@conform-to/dom@1.8.0': {}
+
+  '@conform-to/react@1.8.0(react@19.1.0)':
+    dependencies:
+      '@conform-to/dom': 1.8.0
+      react: 19.1.0
+
+  '@conform-to/zod@1.8.0(zod@3.25.67)':
+    dependencies:
+      '@conform-to/dom': 1.8.0
+      zod: 3.25.67
 
   '@esbuild/aix-ppc64@0.25.5':
     optional: true

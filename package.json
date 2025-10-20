@@ -35,6 +35,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@conform-to/react": "^1.8.0",
+    "@conform-to/zod": "^1.8.0",
     "@fontsource-variable/inter": "^5.2.6",
     "@phosphor-icons/react": "^2.1.10",
     "@prisma/client": "^6.10.1",

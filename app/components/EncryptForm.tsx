@@ -4,7 +4,12 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import type { FlattenedErrors } from "@/routes/index";
+import {
+  getFormProps,
+  getInputProps,
+  getSelectProps,
+  useForm,
+} from "@conform-to/react";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Input } from "./ui/input";
 import PasswordVisibilityButton from "./PasswordVisibilityButton";
@@ -22,30 +27,43 @@ import {
   CircleNotchIcon,
   LockKeyIcon,
 } from "@phosphor-icons/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
+import { action, messageSchema } from "@/routes/home";
 
 const MINIMUM_MESSAGE_LENGTH = 2;
 const MAXIMUM_MESSAGE_LENGTH = 500;
 
-type Props = {
-  errors?: FlattenedErrors | null;
-};
-
-export default function EncryptForm({ errors }: Props) {
-  const { Form, state } = useFetcher();
+export default function EncryptForm() {
+  const { Form, state, data } = useFetcher<typeof action>();
   const [charCount, setCharCount] = useState(0);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
-
-  const passwordErrors = errors?.fieldErrors.password;
-  const messageErrors = errors?.fieldErrors.message;
+  const [form, fields] = useForm({
+    // This not only syncs the error from the server
+    // But is also used as the default value of the form
+    // in case the document is reloaded for progressive enhancement
+    lastResult: data,
+    // Validate field once user leaves the field
+    shouldValidate: "onBlur",
+    // Then, revalidate field as user types again
+    shouldRevalidate: "onInput",
+    // Run the same validation logic on client
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: messageSchema });
+    },
+    // To derive all validation attributes
+    constraint: getZodConstraint(messageSchema),
+    id: "encrypt-form",
+  });
+  const isLoading = state !== "idle";
 
   return (
     <Form
-      id="form"
       method="post"
       action="?index"
       className="flex flex-col gap-4 rounded-lg bg-white/50 p-4 text-left
         shadow-lg ring-2 shadow-sky-700/20 ring-neutral-50 backdrop-blur-md"
+      {...getFormProps(form)}
     >
       <div className="space-y-2">
         <div
@@ -54,7 +72,7 @@ export default function EncryptForm({ errors }: Props) {
             charCount > 0 && "justify-between",
           )}
         >
-          <Label className="block leading-tight" htmlFor="message">
+          <Label className="block leading-tight" htmlFor={fields.message.id}>
             Your Message
           </Label>
           {charCount > 0 ? (
@@ -74,18 +92,18 @@ export default function EncryptForm({ errors }: Props) {
             </span>
           )}
         </div>
-        {messageErrors &&
-          messageErrors.map((error, index) => (
-            <ErrorOutput key={index} message={error} />
-          ))}
+        {fields.message.errors && fields.message.errors.length > 0 && (
+          <ErrorOutput message={fields.message.errors.join("")} />
+        )}
         <Textarea
           className="min-h-24"
-          id="message"
-          name="message"
           placeholder="Type your secret message here..."
           minLength={MINIMUM_MESSAGE_LENGTH}
           maxLength={MAXIMUM_MESSAGE_LENGTH}
           onChange={(e) => setCharCount(e.target.value.length)}
+          {...getInputProps(fields.message, {
+            type: "text",
+          })}
         />
       </div>
       <div>
@@ -93,8 +111,15 @@ export default function EncryptForm({ errors }: Props) {
           Expiration Time
           <div className="flex gap-2">
             {/* https://github.com/radix-ui/themes/issues/234 */}
-            <input type="hidden" name="expiration-time" value={value} />
-            <Select value={value} onValueChange={(e) => setValue(e)}>
+            <input
+              {...getInputProps(fields.expirationTime, {
+                type: "hidden",
+              })}
+            />
+            <Select
+              {...getSelectProps(fields.expirationTime)}
+              onValueChange={(e) => setValue(e)}
+            >
               <SelectTrigger
                 className="w-full"
                 aria-label="Select expiration time"
@@ -126,12 +151,13 @@ export default function EncryptForm({ errors }: Props) {
       <div className="items-top flex space-x-1.5">
         <Checkbox
           aria-label="Make this message a One-Time-Message"
-          id="one-time-message"
-          name="one-time-message"
+          {...getInputProps(fields.oneTimeMessage, {
+            type: "checkbox",
+          })}
         />
         <div className="grid gap-0.5 leading-none">
           <Label
-            htmlFor="one-time-message"
+            htmlFor={fields.oneTimeMessage.id}
             className="peer-disabled:cursor-not-allowed
               peer-disabled:opacity-70"
           >
@@ -148,25 +174,23 @@ export default function EncryptForm({ errors }: Props) {
         </Label>
         <div className="relative">
           <Input
-            id="password"
             ref={passwordRef}
             placeholder="Enter a password to protect your message"
-            type="password"
-            name="password"
             className="pr-9"
             autoComplete="one-time-code"
-            minLength={4}
-            required
+            {...getInputProps(fields.password, {
+              type: "password",
+            })}
           />
           <PasswordVisibilityButton passwordRef={passwordRef} />
         </div>
       </div>
-      {passwordErrors &&
+      {/* {passwordErrors &&
         passwordErrors.map((error, index) => (
           <ErrorOutput key={index} message={error} />
-        ))}
-      <Button disabled={state !== "idle"} type="submit" size="sm">
-        {state !== "idle" ? (
+        ))} */}
+      <Button disabled={isLoading} type="submit" size="sm">
+        {isLoading ? (
           <>
             <CircleNotchIcon className="animate-spin" size={20} />
             Generating Link...
