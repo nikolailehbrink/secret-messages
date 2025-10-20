@@ -1,8 +1,6 @@
 import EncryptForm from "@/components/EncryptForm";
-import { href, redirect } from "react-router";
+import { href, data as json, redirect } from "react-router";
 import { Await } from "react-router";
-import { parseWithZod } from "@conform-to/zod/v4";
-
 import {
   getMessageCount,
   incrementMessageCount,
@@ -12,6 +10,7 @@ import { z } from "zod/v4";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
@@ -34,17 +33,19 @@ export const meta: Route.MetaFunction = ({ matches }) => {
   ];
 };
 
-export const messageSchema = z.object({
+const schema = z.object({
   message: z
     .string()
     .min(2, "The message needs at least two characters.")
     .max(500, "The message can't be longer than 500 characters."),
-  oneTimeMessage: z.stringbool().default(false),
+  oneTimeMessage: z.literal("on").nullable(),
   // Pull the first value out explicitly to ensure proper type inference.
   // For more details, refer to: https://stackoverflow.com/a/73825370/14769333
-  expirationTime: z.enum([...EXPIRATION_TIMES_VALUES]).optional(),
+  expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
   password: z.string().min(4, "The password needs at least four characters."),
 });
+
+export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 export async function loader() {
   const messageCount = getMessageCount("all");
@@ -53,28 +54,33 @@ export async function loader() {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema: messageSchema });
+  const message = formData.get("message");
+  const oneTimeMessage = formData.get("one-time-message");
+  const expirationTime = formData.get("expiration-time");
+  const password = formData.get("password");
 
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  const {
-    oneTimeMessage: isOneTimeMessage,
-    expirationTime,
+  const { error, data } = schema.safeParse({
     message,
+    oneTimeMessage,
+    expirationTime,
     password,
-  } = submission.value;
+  });
 
-  const isExpiringMessage = expirationTime !== undefined;
+  if (error) {
+    return json(
+      { formErrors: error.flatten(), uuidError: null },
+      { status: 400 },
+    );
+  }
+  const isOneTimeMessage = data.oneTimeMessage === "on";
+  const isExpiringMessage = data.expirationTime !== "";
   const isStandardMessage = !isOneTimeMessage && !isExpiringMessage;
-
   try {
     const { uuid } = await createMessage(
-      message,
+      data.message,
       isOneTimeMessage,
-      expirationTime ? parseInt(expirationTime) : null,
-      password,
+      data.expirationTime ? parseInt(data.expirationTime) : null,
+      data.password,
     );
     await Promise.all([
       isOneTimeMessage && incrementMessageCount("oneTime"),
@@ -88,18 +94,25 @@ export async function action({ request }: Route.ActionArgs) {
     if (
       error instanceof PrismaClientKnownRequestError &&
       error.code === "P2002"
-    ) {
-      return submission.reply({
-        formErrors: [
-          "An error occurred while attempting to save your message. Please try again.",
-        ],
-      });
-    }
+    )
+      return json(
+        {
+          uuidError:
+            "An error occurred while attempting to save your message. Please try again.",
+          formErrors: null,
+        },
+        { status: 500 },
+      );
   }
 }
 
-export default function Index({ loaderData }: Route.ComponentProps) {
+export default function Index({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const { messageCount } = loaderData;
+  const formErrors = actionData?.formErrors;
+  const uuidError = actionData?.uuidError;
 
   return (
     <div
@@ -148,7 +161,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         </GradientContainer>
       </div>
       <div className="w-full md:max-w-lg">
-        <EncryptForm />
+        <EncryptForm errors={formErrors} />
+        {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
         <div className="flex flex-col items-start gap-4 md:items-center">
