@@ -3,6 +3,9 @@
 
 .env
 
+# Lokale Docker-Overrides (maschinenspezifisch, z. B. Port-Remap)
+docker-compose.override.yml
+
 # React Router
 /.react-router/
 /build/
