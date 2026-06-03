@@ -11,8 +11,9 @@ export const FEATURES = [
     icon: DetectiveIcon,
   },
   {
-    title: "Secure",
-    description: "Your message is encrypted and protected with a password.",
+    title: "End-to-End Encrypted",
+    description:
+      "Your message is encrypted in your browser. The server only ever stores ciphertext — never your message or password.",
     icon: LockKeyIcon,
   },
   {

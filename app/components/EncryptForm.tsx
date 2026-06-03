@@ -4,7 +4,6 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import type { FlattenedErrors } from "@/routes/index";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Input } from "./ui/input";
 import PasswordVisibilityButton from "./PasswordVisibilityButton";
@@ -22,28 +21,83 @@ import {
   CircleNotchIcon,
   LockKeyIcon,
 } from "@phosphor-icons/react";
+import { encryptText } from "@/lib/crypto";
 
 const MINIMUM_MESSAGE_LENGTH = 2;
-const MAXIMUM_MESSAGE_LENGTH = 500;
+const MAXIMUM_MESSAGE_LENGTH = 5000;
+const MINIMUM_PASSWORD_LENGTH = 4;
 
-type Props = {
-  errors?: FlattenedErrors | null;
+type ClientErrors = {
+  message?: string;
+  password?: string;
+  encryption?: string;
 };
 
-export default function EncryptForm({ errors }: Props) {
-  const { Form, state } = useFetcher();
+export default function EncryptForm() {
+  const fetcher = useFetcher();
   const [charCount, setCharCount] = useState(0);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const [value, setValue] = useState("");
+  const [expirationTime, setExpirationTime] = useState("");
+  const [errors, setErrors] = useState<ClientErrors>({});
+  const [isEncrypting, setIsEncrypting] = useState(false);
 
-  const passwordErrors = errors?.fieldErrors.password;
-  const messageErrors = errors?.fieldErrors.message;
+  const isBusy = isEncrypting || fetcher.state !== "idle";
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    // The message is encrypted in the browser; only the resulting ciphertext is
+    // submitted, so the plaintext and password never reach the server.
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const message = String(formData.get("message") ?? "");
+    const password = String(formData.get("password") ?? "");
+
+    const nextErrors: ClientErrors = {};
+    if (message.length < MINIMUM_MESSAGE_LENGTH) {
+      nextErrors.message = `The message needs at least ${MINIMUM_MESSAGE_LENGTH} characters.`;
+    } else if (message.length > MAXIMUM_MESSAGE_LENGTH) {
+      nextErrors.message = `The message can't be longer than ${MAXIMUM_MESSAGE_LENGTH} characters.`;
+    }
+    if (password.length < MINIMUM_PASSWORD_LENGTH) {
+      nextErrors.password = `The password needs at least ${MINIMUM_PASSWORD_LENGTH} characters.`;
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+    setErrors({});
+
+    try {
+      setIsEncrypting(true);
+      const { encryptedMessage, iv, salt } = await encryptText(
+        message,
+        password,
+      );
+
+      const payload = new FormData();
+      payload.set("encrypted-content", encryptedMessage);
+      payload.set("iv", iv);
+      payload.set("salt", salt);
+      payload.set("expiration-time", expirationTime);
+      if (formData.get("one-time-message")) {
+        payload.set("one-time-message", "on");
+      }
+
+      fetcher.submit(payload, { method: "post", action: "?index" });
+    } catch (error) {
+      console.error(error);
+      setErrors({ encryption: "Encryption failed. Please try again." });
+    } finally {
+      setIsEncrypting(false);
+    }
+  }
 
   return (
-    <Form
+    <fetcher.Form
       id="form"
       method="post"
       action="?index"
+      onSubmit={handleSubmit}
       className="flex flex-col gap-4 rounded-lg bg-white/50 p-4 text-left
         shadow-lg ring-2 shadow-sky-700/20 ring-neutral-50 backdrop-blur-md"
     >
@@ -74,12 +128,9 @@ export default function EncryptForm({ errors }: Props) {
             </span>
           )}
         </div>
-        {messageErrors &&
-          messageErrors.map((error, index) => (
-            <ErrorOutput key={index} message={error} />
-          ))}
+        {errors.message && <ErrorOutput message={errors.message} />}
         <Textarea
-          className="min-h-24"
+          className="min-h-32"
           id="message"
           name="message"
           placeholder="Type your secret message here..."
@@ -87,14 +138,19 @@ export default function EncryptForm({ errors }: Props) {
           maxLength={MAXIMUM_MESSAGE_LENGTH}
           onChange={(e) => setCharCount(e.target.value.length)}
         />
+        <p className="text-xs text-muted-foreground">
+          Supports Markdown — <code>**bold**</code>, <code>_italic_</code>,
+          lists, <code>[links](url)</code> and <code>`code`</code>.
+        </p>
       </div>
       <div>
         <Label className="flex flex-col items-stretch gap-2">
           Expiration Time
           <div className="flex gap-2">
-            {/* https://github.com/radix-ui/themes/issues/234 */}
-            <input type="hidden" name="expiration-time" value={value} />
-            <Select value={value} onValueChange={(e) => setValue(e)}>
+            <Select
+              value={expirationTime}
+              onValueChange={(value) => setExpirationTime(value)}
+            >
               <SelectTrigger
                 className="w-full"
                 aria-label="Select expiration time"
@@ -109,13 +165,13 @@ export default function EncryptForm({ errors }: Props) {
                 ))}
               </SelectContent>
             </Select>
-            {value !== "" && (
+            {expirationTime !== "" && (
               <Button
                 aria-label="Reset lifetime"
                 type="button"
                 className="shrink-0"
                 size="icon"
-                onClick={() => setValue("")}
+                onClick={() => setExpirationTime("")}
               >
                 <BackspaceIcon size={20} weight="duotone" />
               </Button>
@@ -155,21 +211,19 @@ export default function EncryptForm({ errors }: Props) {
             name="password"
             className="pr-9"
             autoComplete="one-time-code"
-            minLength={4}
+            minLength={MINIMUM_PASSWORD_LENGTH}
             required
           />
           <PasswordVisibilityButton passwordRef={passwordRef} />
         </div>
+        {errors.password && <ErrorOutput message={errors.password} />}
       </div>
-      {passwordErrors &&
-        passwordErrors.map((error, index) => (
-          <ErrorOutput key={index} message={error} />
-        ))}
-      <Button disabled={state !== "idle"} type="submit" size="sm">
-        {state !== "idle" ? (
+      {errors.encryption && <ErrorOutput message={errors.encryption} />}
+      <Button disabled={isBusy} type="submit" size="sm">
+        {isBusy ? (
           <>
             <CircleNotchIcon className="animate-spin" size={20} />
-            Generating Link...
+            {isEncrypting ? "Encrypting..." : "Generating Link..."}
           </>
         ) : (
           <>
@@ -178,6 +232,6 @@ export default function EncryptForm({ errors }: Props) {
           </>
         )}
       </Button>
-    </Form>
+    </fetcher.Form>
   );
 }

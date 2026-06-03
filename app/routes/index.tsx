@@ -17,7 +17,7 @@ import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
 import type { Route } from "./+types";
 
 const description =
-  "Share confidential messages securely with anyone. Create one-time read messages and set expiration times. Generate unique links and passwords for exclusive access.";
+  "Share confidential messages with end-to-end encryption. Your message is encrypted in your browser before it ever leaves your device — the server never sees it. Create one-time messages, set expiration times, and share a unique link protected by a password.";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentMeta = matches.flatMap((match) => (match && match.meta) ?? []);
@@ -33,19 +33,21 @@ export const meta: Route.MetaFunction = ({ matches }) => {
   ];
 };
 
+// The message is encrypted in the browser before submission, so the server
+// validates the ciphertext blob (content + iv + salt) rather than the
+// plaintext. Plaintext length is enforced client-side in the form.
 const schema = z.object({
-  message: z
+  encryptedContent: z
     .string()
-    .min(2, "The message needs at least two characters.")
-    .max(500, "The message can't be longer than 500 characters."),
+    .min(1, "The encrypted message is missing.")
+    .max(20_000, "The encrypted message is too large."),
+  iv: z.string().min(1),
+  salt: z.string().min(1),
   oneTimeMessage: z.literal("on").nullable(),
   // Pull the first value out explicitly to ensure proper type inference.
   // For more details, refer to: https://stackoverflow.com/a/73825370/14769333
   expirationTime: z.enum(["", ...EXPIRATION_TIMES_VALUES]),
-  password: z.string().min(4, "The password needs at least four characters."),
 });
-
-export type FlattenedErrors = z.inferFlattenedErrors<typeof schema>;
 
 export async function loader() {
   const messageCount = getMessageCount("all");
@@ -54,16 +56,18 @@ export async function loader() {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const message = formData.get("message");
+  const encryptedContent = formData.get("encrypted-content");
+  const iv = formData.get("iv");
+  const salt = formData.get("salt");
   const oneTimeMessage = formData.get("one-time-message");
   const expirationTime = formData.get("expiration-time");
-  const password = formData.get("password");
 
   const { error, data } = schema.safeParse({
-    message,
+    encryptedContent,
+    iv,
+    salt,
     oneTimeMessage,
     expirationTime,
-    password,
   });
 
   if (error) {
@@ -77,10 +81,11 @@ export async function action({ request }: Route.ActionArgs) {
   const isStandardMessage = !isOneTimeMessage && !isExpiringMessage;
   try {
     const { uuid } = await createMessage(
-      data.message,
+      data.encryptedContent,
+      data.iv,
+      data.salt,
       isOneTimeMessage,
       data.expirationTime ? parseInt(data.expirationTime) : null,
-      data.password,
     );
     await Promise.all([
       isOneTimeMessage && incrementMessageCount("oneTime"),
@@ -111,7 +116,6 @@ export default function Index({
   actionData,
 }: Route.ComponentProps) {
   const { messageCount } = loaderData;
-  const formErrors = actionData?.formErrors;
   const uuidError = actionData?.uuidError;
 
   return (
@@ -161,7 +165,7 @@ export default function Index({
         </GradientContainer>
       </div>
       <div className="w-full md:max-w-lg">
-        <EncryptForm errors={formErrors} />
+        <EncryptForm />
         {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
@@ -186,10 +190,10 @@ export default function Index({
             className="max-w-screen-sm text-black/50 md:text-xl/relaxed
               lg:text-base/relaxed xl:text-lg/relaxed dark:text-neutral-400"
           >
-            Our secret message app allows you to create a unique link and
-            password to share confidential information securely. Your message is
-            protected and can only be accessed by those with the correct
-            password.
+            Your message is encrypted directly in your browser using your
+            password and leaves your device as unreadable ciphertext. It can
+            only be unlocked by someone with the correct password — not even our
+            server can read it.
           </p>
         </div>
         <div

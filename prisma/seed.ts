@@ -6,6 +6,7 @@ async function main() {
       {
         encryptedContent: "U2FsdGVkX1+demo1==",
         iv: "iv-demo-1",
+        salt: "salt-demo-1",
         uuid: "uuid-demo-1",
         isOneTimeMessage: false,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // expires in 1 day
@@ -14,6 +15,7 @@ async function main() {
       {
         encryptedContent: "U2FsdGVkX1+demo2==",
         iv: "iv-demo-2",
+        salt: "salt-demo-2",
         uuid: "uuid-demo-2",
         isOneTimeMessage: true,
         expiresAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // expires in 2 days

@@ -8,7 +8,8 @@ This app allows users to send and receive encrypted messages securely. One-Time-
 
 ## ✨ Features
 
-- **Modern Technologies**: Built with [Remix](https://remix.run), [Vite](https://vitejs.dev), and [Tailwind CSS](https://tailwindcss.com).
+- **Modern Technologies**: Built with [React Router](https://reactrouter.com), [Vite](https://vitejs.dev), and [Tailwind CSS](https://tailwindcss.com).
+- **End-to-End Encryption**: Messages are encrypted in the browser with the Web Crypto API (PBKDF2 + AES-GCM). The server only ever stores ciphertext — never the plaintext or the password.
 - **Database Integration**: Utilizes [Prisma](https://www.prisma.io/) for database management.
 - **SEO**: Optimized for search engines and social sharing.
 - **Accessibility**: Build on top of [Radix UI](https://radix-ui.com/), [shadcn/ui](https://ui.shadcn.com/docs) and [v0.dev](https://v0.dev/r/Teb11BcSsgw) for accessible, modern and inclusive design.

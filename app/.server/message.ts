@@ -1,16 +1,17 @@
-import { encryptText } from "@/lib/crypto";
 import short from "short-uuid";
 import { DateTime } from "luxon";
 import { prisma } from "@/.server/prisma";
 
+// The message arrives already encrypted from the browser — the server never
+// sees the plaintext or the password (end-to-end encryption).
 export async function createMessage(
-  content: string,
+  encryptedContent: string,
+  iv: string,
+  salt: string,
   isOneTimeMessage: boolean,
   minutesToExpire: number | null,
-  password: string,
 ) {
   let expirationDate: string | null = null;
-  const { iv, encryptedMessage } = encryptText(content, password);
   const uuid = short.generate();
   const createdDate = DateTime.now();
   const createdAt = createdDate.toJSDate();
@@ -21,9 +22,10 @@ export async function createMessage(
 
   return await prisma.message.create({
     data: {
-      encryptedContent: encryptedMessage,
+      encryptedContent,
       uuid,
       iv,
+      salt,
       expiresAt: expirationDate,
       createdAt,
       isOneTimeMessage,

@@ -1,6 +1,5 @@
 import {
   href,
-  data as json,
   Link,
   type ShouldRevalidateFunction,
   useFetcher,
@@ -14,6 +13,7 @@ import { decryptText } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
 import GradientContainer from "@/components/GradientContainer";
+import MarkdownMessage from "@/components/MarkdownMessage";
 import {
   CircleNotchIcon,
   ClockCountdownIcon,
@@ -88,107 +88,91 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!message || isMessageExpired || isOneTimeMessageAndViewed) {
     throw messageNotFoundResponse();
   }
-  const url = request.url;
 
-  return { url };
+  // Only the ciphertext, salt and IV leave the server — decryption happens in
+  // the browser, so the server never sees the plaintext or the password.
+  return {
+    url: request.url,
+    encryptedContent: message.encryptedContent,
+    iv: message.iv,
+    salt: message.salt,
+    createdAt: message.createdAt,
+    expiresAt: message.expiresAt,
+    isOneTimeMessage: message.isOneTimeMessage,
+  };
 }
 
-// Prevents Remix from revalidating the loader after the message is successfully decrypted in the action function.
-// By default, Remix re-runs the loader after an action to ensure the data is up-to-date.
-// However, for one-time messages, revalidating would result in the message being marked as "viewed" and deleted.
-// This function checks if the action has already decrypted and displayed the message.
-// If so, it prevents revalidation to avoid throwing the "messageNotFoundResponse" in the loader.
+// After a one-time message is successfully decrypted in the browser, the client
+// submits a "burn" so the server marks it as viewed. Skip revalidation
+// afterwards: re-running the loader would mark it gone and 404 the page that is
+// currently showing the decrypted message.
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   actionResult,
   defaultShouldRevalidate,
 }) => {
-  // Only skip revalidation if the message was successfully decrypted and is a one-time-message.
-  if (actionResult?.decryptedMessage && actionResult?.isOneTimeMessage) {
+  if (actionResult?.burned) {
     return false;
   }
   return defaultShouldRevalidate;
 };
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ params }: Route.ActionArgs) {
   const { id } = params;
-  const formData = await request.formData();
-  const password = formData.get("password");
-
-  if (!password || typeof password !== "string") {
-    return json({
-      decryptedMessage: null,
-      createdAt: null,
-      isOneTimeMessage: null,
-      expiresAt: null,
-      error: "Provide a password.",
-    });
-  }
-
-  const message = await getMessage(id);
-
-  if (!message) {
-    throw messageNotFoundResponse();
-  }
-
-  const { encryptedContent, iv, createdAt, isOneTimeMessage, expiresAt } =
-    message;
-
-  try {
-    const decryptedMessage = decryptText(encryptedContent, iv, password);
-    if (!decryptedMessage) throw new Error("Failed to decrypt message.");
-
-    await markMessageAsViewed(id);
-
-    return json({
-      decryptedMessage,
-      expiresAt,
-      createdAt,
-      isOneTimeMessage,
-      error: null,
-    });
-  } catch (error) {
-    console.error(error);
-    // https://github.com/remix-run/remix/discussions/8616
-    return json({
-      decryptedMessage: null,
-      createdAt: null,
-      isOneTimeMessage: null,
-      expiresAt: null,
-      error: "Incorrect password.",
-    });
-  }
+  await markMessageAsViewed(id);
+  return { burned: true };
 }
 
 export default function Message({ loaderData }: Route.ComponentProps) {
-  const { url } = loaderData;
-  const fetcher = useFetcher<typeof action>();
+  const { url, encryptedContent, iv, salt, createdAt, expiresAt, isOneTimeMessage } =
+    loaderData;
+  const burnFetcher = useFetcher();
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  const { data, state } = fetcher;
+  const [decryptedMessage, setDecryptedMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isDecrypting, setIsDecrypting] = useState(false);
 
-  const isLoading = state !== "idle";
-
-  const error = data?.error;
-  const decryptedMessage = data?.decryptedMessage;
-  const creationDate = data?.createdAt
-    ? dateTime.format(new Date(data.createdAt))
-    : null;
-  const expirationDate = data?.expiresAt
-    ? dateTime.format(new Date(data.expiresAt))
-    : null;
+  const creationDate = dateTime.format(new Date(createdAt));
+  const expirationDate = expiresAt ? dateTime.format(new Date(expiresAt)) : null;
 
   const [clipboardStatus, setClipboardStatus] =
     useState<ClipboardStatus>("default");
   const ClipboardIcon = CLIPBOARD_ICONS.get(clipboardStatus) ?? XCircleIcon;
 
-  return !decryptedMessage ? (
+  async function handleDecrypt(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const password = passwordRef.current?.value ?? "";
+    if (!password) {
+      setError("Provide a password.");
+      return;
+    }
+    setError(null);
+    setIsDecrypting(true);
+    try {
+      const message = await decryptText(encryptedContent, iv, salt, password);
+      setDecryptedMessage(message);
+      if (isOneTimeMessage) {
+        // Burn the one-time message now that it has been read.
+        burnFetcher.submit(null, { method: "post" });
+      }
+    } catch (error) {
+      console.error(error);
+      // AES-GCM authentication fails on a wrong password or tampered data.
+      setError("Incorrect password.");
+    } finally {
+      setIsDecrypting(false);
+    }
+  }
+
+  return decryptedMessage === null ? (
     <div
       className="container flex flex-col items-center space-y-6 self-center px-4
         md:px-6"
     >
-      <fetcher.Form
+      <form
         id="form"
         method="post"
+        onSubmit={handleDecrypt}
         className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white/50
           p-4 text-left shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
       >
@@ -211,8 +195,8 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             <PasswordVisibilityButton passwordRef={passwordRef} />
           </div>
         </div>
-        <Button disabled={isLoading} className="w-full">
-          {isLoading ? (
+        <Button disabled={isDecrypting} className="w-full">
+          {isDecrypting ? (
             <>
               <CircleNotchIcon className="animate-spin" size={20} />
               Decrypt message...
@@ -224,7 +208,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             </>
           )}
         </Button>
-      </fetcher.Form>
+      </form>
       <div
         className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3
           text-sm text-muted-foreground"
@@ -285,7 +269,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
           bg-white/50 p-4 shadow-lg ring-2 shadow-sky-700/20 ring-neutral-50
           backdrop-blur-md"
       >
-        {data?.isOneTimeMessage ? (
+        {isOneTimeMessage ? (
           <div
             className="flex gap-1 rounded-lg border border-rose-300 bg-rose-200
               p-3 text-sm text-rose-700"
@@ -322,12 +306,12 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         ) : null}
-        <p
+        <div
           className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
             backdrop-blur-xl"
         >
-          {decryptedMessage}
-        </p>
+          <MarkdownMessage>{decryptedMessage}</MarkdownMessage>
+        </div>
         <p className="text-xs text-muted-foreground">{creationDate}</p>
         <Button asChild className="mt-2">
           <Link to={href("/")} prefetch="viewport">
