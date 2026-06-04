@@ -139,6 +139,23 @@ export default function Message({ loaderData }: Route.ComponentProps) {
     useState<ClipboardStatus>("default");
   const ClipboardIcon = CLIPBOARD_ICONS.get(clipboardStatus) ?? XCircleIcon;
 
+  const [messageCopyStatus, setMessageCopyStatus] =
+    useState<ClipboardStatus>("default");
+  const MessageCopyIcon =
+    CLIPBOARD_ICONS.get(messageCopyStatus) ?? XCircleIcon;
+
+  async function copyMessage() {
+    try {
+      await navigator.clipboard.writeText(decryptedMessage ?? "");
+      setMessageCopyStatus("success");
+    } catch (error) {
+      console.error(error);
+      setMessageCopyStatus("error");
+    } finally {
+      setTimeout(() => setMessageCopyStatus("default"), 2000);
+    }
+  }
+
   async function handleDecrypt(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const password = passwordRef.current?.value ?? "";
@@ -306,13 +323,42 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         ) : null}
-        <div
-          className="rounded-lg rounded-es-none bg-white/75 p-4 px-5 shadow-md
-            backdrop-blur-xl"
-        >
-          <MarkdownMessage>{decryptedMessage}</MarkdownMessage>
-        </div>
-        <p className="text-xs text-muted-foreground">{creationDate}</p>
+        <GradientContainer className="rounded-2xl shadow-lg shadow-sky-700/15">
+          <div
+            className="overflow-hidden rounded-2xl rounded-es-md bg-white/85
+              backdrop-blur-xl"
+          >
+            <div
+              className="flex items-center justify-between gap-2 border-b
+                border-black/5 bg-linear-to-r from-white/60 to-transparent px-4
+                py-2"
+            >
+              <div
+                className="flex items-center gap-1.5 text-sm font-medium
+                  text-sky-700"
+              >
+                <LockKeyOpenIcon size={16} weight="duotone" />
+                Decrypted message
+              </div>
+              <Button
+                aria-label="Copy message to clipboard"
+                variant="ghost"
+                size="icon"
+                type="button"
+                className="size-7 text-neutral-500 hover:text-neutral-900"
+                onClick={copyMessage}
+              >
+                <MessageCopyIcon size={16} weight="duotone" />
+              </Button>
+            </div>
+            <div className="px-5 py-4">
+              <MarkdownMessage>{decryptedMessage}</MarkdownMessage>
+            </div>
+            <p className="px-5 pb-3 text-right text-xs text-muted-foreground">
+              {creationDate}
+            </p>
+          </div>
+        </GradientContainer>
         <Button asChild className="mt-2">
           <Link to={href("/")} prefetch="viewport">
             <LockKeyIcon size={20} weight="duotone" />
