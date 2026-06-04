@@ -13,11 +13,11 @@ const GradientContainer = forwardRef(function GradientContainer(
   ref: React.Ref<HTMLDivElement>,
 ) {
   return (
-    <div className={cn("relative flex flex-col", className)} ref={ref}>
+    <div className={cn("relative flex flex-col rounded-lg", className)} ref={ref}>
       {blur && (
         <div
           className={cn(
-            `absolute inset-0 rounded-lg bg-linear-to-bl from-rose-500
+            `absolute inset-0 rounded-[inherit] bg-linear-to-bl from-rose-500
             via-sky-500 to-fuchsia-500 opacity-15 blur-md`,
             rotate && "bg-linear-to-tl sm:bg-linear-to-br",
           )}
@@ -25,7 +25,7 @@ const GradientContainer = forwardRef(function GradientContainer(
       )}
       <div
         className={cn(
-          `absolute -inset-[2px] rounded-lg bg-linear-to-bl from-rose-500
+          `absolute -inset-[2px] rounded-[inherit] bg-linear-to-bl from-rose-500
           via-sky-500 to-fuchsia-500 opacity-20`,
           rotate && "bg-linear-to-tl sm:bg-linear-to-br",
         )}
