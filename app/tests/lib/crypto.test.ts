@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { encryptText, decryptText } from "@/lib/crypto";
+import {
+  encryptText,
+  decryptText,
+  encryptWithGeneratedKey,
+  decryptWithKey,
+} from "@/lib/crypto";
 
 describe("Crypto functions", () => {
   const text = "Hello, World!";
@@ -41,6 +46,32 @@ describe("Crypto functions", () => {
 
     await expect(
       decryptText(encryptedMessage, wrongIv, salt, password),
+    ).rejects.toThrow();
+  });
+
+  it("should encrypt and decrypt passwordless with a generated key", async () => {
+    const { iv, key, encryptedMessage } = await encryptWithGeneratedKey(text);
+    expect(encryptedMessage).not.toBe(text);
+    expect(key).toBeTruthy();
+
+    const decryptedMessage = await decryptWithKey(encryptedMessage, iv, key);
+    expect(decryptedMessage).toBe(text);
+  });
+
+  it("should generate a different key for the same text each time", async () => {
+    const first = await encryptWithGeneratedKey(text);
+    const second = await encryptWithGeneratedKey(text);
+
+    expect(first.key).not.toBe(second.key);
+    expect(first.encryptedMessage).not.toBe(second.encryptedMessage);
+  });
+
+  it("should fail to decrypt passwordless with a wrong key", async () => {
+    const { iv, encryptedMessage } = await encryptWithGeneratedKey(text);
+    const otherKey = await encryptWithGeneratedKey(text).then((r) => r.key);
+
+    await expect(
+      decryptWithKey(encryptedMessage, iv, otherKey),
     ).rejects.toThrow();
   });
 });

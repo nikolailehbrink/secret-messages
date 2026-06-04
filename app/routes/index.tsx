@@ -1,5 +1,5 @@
 import EncryptForm from "@/components/EncryptForm";
-import { href, data as json, redirect } from "react-router";
+import { data as json } from "react-router";
 import { Await } from "react-router";
 import {
   getMessageCount,
@@ -9,15 +9,13 @@ import {
 import { z } from "zod/v4";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
 import { EXPIRATION_TIMES_VALUES } from "@/constants/expiration-times";
 import type { Route } from "./+types";
 
 const description =
-  "Share confidential messages with end-to-end encryption. Your message is encrypted in your browser before it ever leaves your device — the server never sees it. Create one-time messages, set expiration times, and share a unique link protected by a password.";
+  "Share confidential messages with end-to-end encryption. Your message is encrypted in your browser before it ever leaves your device — the server never sees it. Create one-time messages, set expiration times, and share a unique link — with or without a password.";
 
 export const meta: Route.MetaFunction = ({ matches }) => {
   const parentMeta = matches.flatMap((match) => (match && match.meta) ?? []);
@@ -34,15 +32,17 @@ export const meta: Route.MetaFunction = ({ matches }) => {
 };
 
 // The message is encrypted in the browser before submission, so the server
-// validates the ciphertext blob (content + iv + salt) rather than the
-// plaintext. Plaintext length is enforced client-side in the form.
+// validates the ciphertext blob (content + iv) rather than the plaintext.
+// `salt` is only present for password-protected messages; passwordless
+// messages keep their key in the URL fragment and send no salt. Plaintext
+// length is enforced client-side in the form.
 const schema = z.object({
   encryptedContent: z
     .string()
     .min(1, "The encrypted message is missing.")
     .max(20_000, "The encrypted message is too large."),
   iv: z.string().min(1),
-  salt: z.string().min(1),
+  salt: z.string().min(1).nullable(),
   oneTimeMessage: z.literal("on").nullable(),
   // Pull the first value out explicitly to ensure proper type inference.
   // For more details, refer to: https://stackoverflow.com/a/73825370/14769333
@@ -72,7 +72,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (error) {
     return json(
-      { formErrors: error.flatten(), uuidError: null },
+      { uuid: null, formErrors: error.flatten(), uuidError: null },
       { status: 400 },
     );
   }
@@ -93,30 +93,25 @@ export async function action({ request }: Route.ActionArgs) {
       isStandardMessage && incrementMessageCount("standard"),
       incrementMessageCount("all"),
     ]);
-    return redirect(href("/:id", { id: uuid }));
+    // The client navigates to the message page; for passwordless messages it
+    // appends the key as a URL fragment, which must never reach the server.
+    return json({ uuid, uuidError: null, formErrors: null });
   } catch (error) {
-    // Handle unique constraint error
-    if (
-      error instanceof PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    )
-      return json(
-        {
-          uuidError:
-            "An error occurred while attempting to save your message. Please try again.",
-          formErrors: null,
-        },
-        { status: 500 },
-      );
+    console.error(error);
+    return json(
+      {
+        uuid: null,
+        uuidError:
+          "An error occurred while attempting to save your message. Please try again.",
+        formErrors: null,
+      },
+      { status: 500 },
+    );
   }
 }
 
-export default function Index({
-  loaderData,
-  actionData,
-}: Route.ComponentProps) {
+export default function Index({ loaderData }: Route.ComponentProps) {
   const { messageCount } = loaderData;
-  const uuidError = actionData?.uuidError;
 
   return (
     <div
@@ -166,7 +161,6 @@ export default function Index({
       </div>
       <div className="w-full md:max-w-lg">
         <EncryptForm />
-        {uuidError && <ErrorOutput message={uuidError} />}
       </div>
       <section>
         <div className="flex flex-col items-start gap-4 md:items-center">
@@ -203,7 +197,7 @@ export default function Index({
           {FEATURES.map(({ icon: Icon, title, description }, index) => {
             return (
               <GradientContainer
-                className="w-full rounded-lg shadow-md shadow-sky-700/15
+                className="w-full rounded-md shadow-md shadow-sky-700/15
                   md:max-w-md md:max-lg:col-span-2 md:max-lg:last:col-start-2"
                 key={title}
                 rotate={index % 2 === 0}

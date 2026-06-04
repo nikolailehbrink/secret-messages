@@ -1,10 +1,14 @@
 // End-to-end encryption with the Web Crypto API. These functions run in the
-// browser, so the server only ever stores ciphertext, salt and IV — never the
-// plaintext message or the password.
+// browser, so the server only ever stores ciphertext (plus salt/IV) — never the
+// plaintext message, the password, or the key.
 //
-// Scheme: PBKDF2 (SHA-256) derives a 256-bit key from the password and a random
-// per-message salt; AES-GCM encrypts the message and provides built-in
-// integrity (a wrong password or tampered ciphertext fails authentication).
+// Two modes share the same AES-GCM cipher:
+//   - Password mode: PBKDF2 (SHA-256) derives the key from a password and a
+//     random per-message salt. The recipient needs the password.
+//   - Passwordless mode: a random key is generated and travels in the URL
+//     fragment (never sent to the server). There is no salt.
+// AES-GCM provides built-in integrity: a wrong password/key or tampered
+// ciphertext fails authentication.
 
 const PBKDF2_ITERATIONS = 250_000;
 const SALT_BYTES = 16;
@@ -26,6 +30,20 @@ function base64ToBytes(base64: string): Uint8Array {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
+}
+
+// URL-safe base64 for the key carried in the link fragment.
+function bufferToBase64Url(buffer: ArrayBuffer): string {
+  return bufferToBase64(buffer)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function base64UrlToBytes(base64url: string): Uint8Array {
+  const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = base64.length % 4 ? 4 - (base64.length % 4) : 0;
+  return base64ToBytes(base64 + "=".repeat(padding));
 }
 
 async function deriveKey(
@@ -53,22 +71,39 @@ async function deriveKey(
   );
 }
 
-export async function encryptText(text: string, password: string) {
-  const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+async function encryptWithKey(text: string, key: CryptoKey) {
   const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
-  const key = await deriveKey(password, salt);
-
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
     new TextEncoder().encode(text),
   );
-
   return {
     encryptedMessage: bufferToBase64(ciphertext),
     iv: bufferToBase64(iv.buffer),
-    salt: bufferToBase64(salt.buffer),
   };
+}
+
+async function decryptWithCryptoKey(
+  encrypted: string,
+  iv: string,
+  key: CryptoKey,
+) {
+  const plaintext = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: base64ToBytes(iv) },
+    key,
+    base64ToBytes(encrypted),
+  );
+  return new TextDecoder().decode(plaintext);
+}
+
+// --- Password mode -------------------------------------------------------
+
+export async function encryptText(text: string, password: string) {
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
+  const key = await deriveKey(password, salt);
+  const { encryptedMessage, iv } = await encryptWithKey(text, key);
+  return { encryptedMessage, iv, salt: bufferToBase64(salt.buffer) };
 }
 
 export async function decryptText(
@@ -78,10 +113,33 @@ export async function decryptText(
   password: string,
 ) {
   const key = await deriveKey(password, base64ToBytes(salt));
-  const plaintext = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: base64ToBytes(iv) },
-    key,
-    base64ToBytes(encrypted),
+  return decryptWithCryptoKey(encrypted, iv, key);
+}
+
+// --- Passwordless mode (key in the URL fragment) -------------------------
+
+export async function encryptWithGeneratedKey(text: string) {
+  const key = await crypto.subtle.generateKey(
+    { name: "AES-GCM", length: 256 },
+    true,
+    ["encrypt", "decrypt"],
   );
-  return new TextDecoder().decode(plaintext);
+  const { encryptedMessage, iv } = await encryptWithKey(text, key);
+  const rawKey = await crypto.subtle.exportKey("raw", key);
+  return { encryptedMessage, iv, key: bufferToBase64Url(rawKey) };
+}
+
+export async function decryptWithKey(
+  encrypted: string,
+  iv: string,
+  keyBase64Url: string,
+) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    base64UrlToBytes(keyBase64Url),
+    { name: "AES-GCM" },
+    false,
+    ["decrypt"],
+  );
+  return decryptWithCryptoKey(encrypted, iv, key);
 }

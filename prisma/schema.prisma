@@ -20,7 +20,7 @@ model Message {
   createdAt        DateTime  @default(now())
   encryptedContent String
   iv               String
-  salt             String
+  salt             String? // null for passwordless messages (key lives in the link fragment)
   uuid             String    @unique
   isOneTimeMessage Boolean   @default(false)
   expiresAt        DateTime?

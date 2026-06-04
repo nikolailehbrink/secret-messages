@@ -9,7 +9,7 @@ import {
   getMessage,
   markMessageAsViewed,
 } from "@/.server/message";
-import { decryptText } from "@/lib/crypto";
+import { decryptText, decryptWithKey } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import ErrorOutput from "@/components/ErrorOutput";
 import GradientContainer from "@/components/GradientContainer";
@@ -22,7 +22,7 @@ import {
   NumberCircleOneIcon,
   XCircleIcon,
 } from "@phosphor-icons/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PasswordVisibilityButton from "@/components/PasswordVisibilityButton";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -123,14 +123,33 @@ export async function action({ params }: Route.ActionArgs) {
 }
 
 export default function Message({ loaderData }: Route.ComponentProps) {
-  const { url, encryptedContent, iv, salt, createdAt, expiresAt, isOneTimeMessage } =
-    loaderData;
+  const {
+    url,
+    encryptedContent,
+    iv,
+    salt,
+    createdAt,
+    expiresAt,
+    isOneTimeMessage,
+  } = loaderData;
   const burnFetcher = useFetcher();
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  // Password-protected messages store a salt; passwordless messages don't —
+  // their key travels in the URL fragment instead.
+  const isPasswordProtected = salt !== null;
 
   const [decryptedMessage, setDecryptedMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
+
+  // The link to share/copy. The loader only sees the path (the fragment never
+  // reaches the server), so on the client we use the full href, which includes
+  // the passwordless key fragment.
+  const [shareUrl, setShareUrl] = useState(url);
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
 
   const creationDate = dateTime.format(new Date(createdAt));
   const expirationDate = expiresAt ? dateTime.format(new Date(expiresAt)) : null;
@@ -156,8 +175,17 @@ export default function Message({ loaderData }: Route.ComponentProps) {
     }
   }
 
+  function onDecrypted(message: string) {
+    setDecryptedMessage(message);
+    if (isOneTimeMessage) {
+      // Burn the one-time message now that it has been read.
+      burnFetcher.submit(null, { method: "post" });
+    }
+  }
+
   async function handleDecrypt(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (salt === null) return;
     const password = passwordRef.current?.value ?? "";
     if (!password) {
       setError("Provide a password.");
@@ -166,16 +194,32 @@ export default function Message({ loaderData }: Route.ComponentProps) {
     setError(null);
     setIsDecrypting(true);
     try {
-      const message = await decryptText(encryptedContent, iv, salt, password);
-      setDecryptedMessage(message);
-      if (isOneTimeMessage) {
-        // Burn the one-time message now that it has been read.
-        burnFetcher.submit(null, { method: "post" });
-      }
+      onDecrypted(await decryptText(encryptedContent, iv, salt, password));
     } catch (error) {
       console.error(error);
       // AES-GCM authentication fails on a wrong password or tampered data.
       setError("Incorrect password.");
+    } finally {
+      setIsDecrypting(false);
+    }
+  }
+
+  async function handleReveal() {
+    // The key lives in the URL fragment, which is never sent to the server.
+    const key = window.location.hash.replace(/^#/, "");
+    if (!key) {
+      setError(
+        "This link is missing its decryption key. Make sure you copied the full link, including everything after the “#”.",
+      );
+      return;
+    }
+    setError(null);
+    setIsDecrypting(true);
+    try {
+      onDecrypted(await decryptWithKey(encryptedContent, iv, key));
+    } catch (error) {
+      console.error(error);
+      setError("Could not decrypt this message — the link may be corrupted.");
     } finally {
       setIsDecrypting(false);
     }
@@ -186,46 +230,79 @@ export default function Message({ loaderData }: Route.ComponentProps) {
       className="container flex flex-col items-center space-y-6 self-center px-4
         md:px-6"
     >
-      <form
-        id="form"
-        method="post"
-        onSubmit={handleDecrypt}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white/50
-          p-4 text-left shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
-      >
-        <div className="relative space-y-2">
-          <Label className="block text-left" htmlFor="password">
-            Password
-          </Label>
-          {error && <ErrorOutput message={error} />}
-          <div className="relative">
-            <Input
-              id="password"
-              ref={passwordRef}
-              placeholder="Enter the password for the message"
-              type="password"
-              name="password"
-              autoComplete="one-time-code"
-              className="pr-9"
-              required
-            />
-            <PasswordVisibilityButton passwordRef={passwordRef} />
+      {isPasswordProtected ? (
+        <form
+          id="form"
+          method="post"
+          onSubmit={handleDecrypt}
+          className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-white/50
+            p-4 text-left shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
+        >
+          <div className="relative space-y-2">
+            <Label className="block text-left" htmlFor="password">
+              Password
+            </Label>
+            {error && <ErrorOutput message={error} />}
+            <div className="relative">
+              <Input
+                id="password"
+                ref={passwordRef}
+                placeholder="Enter the password for the message"
+                type="password"
+                name="password"
+                autoComplete="one-time-code"
+                className="pr-9"
+                required
+              />
+              <PasswordVisibilityButton passwordRef={passwordRef} />
+            </div>
           </div>
+          <Button disabled={isDecrypting} className="w-full">
+            {isDecrypting ? (
+              <>
+                <CircleNotchIcon className="animate-spin" size={20} />
+                Decrypt message...
+              </>
+            ) : (
+              <>
+                <LockKeyOpenIcon size={24} weight="duotone" />
+                Show message
+              </>
+            )}
+          </Button>
+        </form>
+      ) : (
+        <div
+          className="flex w-full max-w-sm flex-col gap-3 rounded-lg bg-white/50
+            p-4 text-left shadow-lg ring-2 ring-neutral-50 backdrop-blur-md"
+        >
+          <div className="flex gap-1.5 text-sm text-sky-700">
+            <LockKeyOpenIcon size={20} weight="duotone" className="shrink-0" />
+            <p>
+              This message unlocks with the link itself — no password needed.
+            </p>
+          </div>
+          {error && <ErrorOutput message={error} />}
+          <Button
+            type="button"
+            onClick={handleReveal}
+            disabled={isDecrypting}
+            className="w-full"
+          >
+            {isDecrypting ? (
+              <>
+                <CircleNotchIcon className="animate-spin" size={20} />
+                Decrypt message...
+              </>
+            ) : (
+              <>
+                <LockKeyOpenIcon size={24} weight="duotone" />
+                Show message
+              </>
+            )}
+          </Button>
         </div>
-        <Button disabled={isDecrypting} className="w-full">
-          {isDecrypting ? (
-            <>
-              <CircleNotchIcon className="animate-spin" size={20} />
-              Decrypt message...
-            </>
-          ) : (
-            <>
-              <LockKeyOpenIcon size={24} weight="duotone" />
-              Show message
-            </>
-          )}
-        </Button>
-      </form>
+      )}
       <div
         className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3
           text-sm text-muted-foreground"
@@ -249,7 +326,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             className="relative flex h-full gap-2 rounded-md bg-white/50 p-1
               px-2 text-sm text-neutral-700 backdrop-blur-2xl"
           >
-            <p className="line-clamp-1 self-center select-all">{url}</p>
+            <p className="line-clamp-1 self-center select-all">{shareUrl}</p>
           </div>
         </GradientContainer>
         <GradientContainer className="inline-flex self-start">
@@ -262,7 +339,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             type="button"
             onClick={async () => {
               try {
-                await navigator.clipboard.writeText(url);
+                await navigator.clipboard.writeText(shareUrl);
                 setClipboardStatus("success");
               } catch (error) {
                 console.error(error);

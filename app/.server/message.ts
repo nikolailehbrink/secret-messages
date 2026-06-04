@@ -7,7 +7,7 @@ import { prisma } from "@/.server/prisma";
 export async function createMessage(
   encryptedContent: string,
   iv: string,
-  salt: string,
+  salt: string | null,
   isOneTimeMessage: boolean,
   minutesToExpire: number | null,
 ) {
