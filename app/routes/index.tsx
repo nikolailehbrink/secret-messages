@@ -225,7 +225,6 @@ export default function Index({
               </GradientContainer>
             );
           })}
-          ,
         </div>
       </section>
     </div>
