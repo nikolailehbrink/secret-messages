@@ -9,7 +9,7 @@ import {
 import { z } from "zod/v4";
 import GradientHeading from "@/components/GradientHeading";
 import GradientContainer from "@/components/GradientContainer";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { isUniqueConstraintError } from "@/.server/db";
 import ErrorOutput from "@/components/ErrorOutput";
 import { Suspense } from "react";
 import { FEATURES } from "@/constants/features";
@@ -91,10 +91,7 @@ export async function action({ request }: Route.ActionArgs) {
     return redirect(href("/:id", { id: uuid }));
   } catch (error) {
     // Handle unique constraint error
-    if (
-      error instanceof PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    )
+    if (isUniqueConstraintError(error))
       return json(
         {
           uuidError:

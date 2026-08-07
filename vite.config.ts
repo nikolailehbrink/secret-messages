@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import devtoolsJson from "vite-plugin-devtools-json";
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, isSsrBuild }) => ({
   server: {
     open: true,
     host: true,
@@ -14,18 +14,17 @@ export default defineConfig(({ command }) => ({
   test: {
     include: ["**/*.test.ts", "**/*.test.tsx"],
   },
-  // https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
   ssr: {
     noExternal: command === "build" ? true : undefined,
-    // https://github.com/remix-run/react-router/issues/12610#issuecomment-2773018176
-    optimizeDeps: {
-      include: ["@prisma/client-generated"],
-    },
+    // The Node entry of @libsql/client loads platform-specific native bindings
+    // (only used for local file: databases) that must not be bundled.
+    external: ["@libsql/client", "libsql"],
   },
   build: {
-    rollupOptions: {
-      external: ["@prisma/client-generated"],
-    },
+    // The server bundle runs on Node 22, where the top-level await in
+    // app/.server/db.ts is supported. Without this it inherits the browser
+    // target, which rejects top-level await.
+    target: isSsrBuild ? "es2022" : undefined,
   },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), devtoolsJson()],
 }));

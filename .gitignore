@@ -1,9 +1,19 @@
 .DS_Store
 /node_modules/
 
-.env
+.env*
+!.env.example
+
+# Local SQLite database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
 # React Router
 /.react-router/
 /build/
 .vercel
+
+# Machine-specific symlink into .agents/skills
+/.claude/skills/
