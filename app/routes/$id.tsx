@@ -400,7 +400,7 @@ export default function Message({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         ) : null}
-        <GradientContainer className="rounded-2xl shadow-lg shadow-sky-700/15">
+        <GradientContainer className="rounded-2xl rounded-es-md shadow-lg shadow-sky-700/15">
           <div
             className="overflow-hidden rounded-2xl rounded-es-md bg-white/85
               backdrop-blur-xl"

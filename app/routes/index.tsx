@@ -134,7 +134,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           className="mt-4 inline-flex rounded-xl shadow-lg shadow-sky-700/15"
           rotate
         >
-          <div className="rounded-md bg-white/40 backdrop-blur-md">
+          <div className="rounded-xl bg-white/40 backdrop-blur-md">
             <p
               className="rounded-md bg-linear-to-br from-rose-500 via-sky-500
                 to-fuchsia-500 bg-clip-text p-1 px-2 text-sm text-black/40
